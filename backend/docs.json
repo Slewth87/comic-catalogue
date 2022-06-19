@@ -1,0 +1,57 @@
+{
+	"openapi": "3.0.0",
+	"info": {
+		"title": "Auth Backend Docs",
+		"version": "1.0.0",
+		"port": 2814
+	},
+	"paths": {
+		"/users/user": {
+			"get": {
+				"description": "Requires a valid JWT in query params called token",
+				"consumes": "application/json",
+				"produces": "application/json",
+				"responses": {
+					"200": {
+						"description": "Returns user details"
+					},
+					"401": {
+						"description": "Returns message saying token has expired due to invalid JWT token"
+					}
+				}
+			}
+		},
+		"/users/login": {
+			"post": {
+				"description": "username and password in request body i.e. {username: \"josh\", password:\"hello\"}",
+				"consumes": "application/json",
+				"produces": "application/json",
+				"responses": {
+					"200": {
+						"description": "Returns json web token"
+					},
+					"400": {
+						"description": "Returns invalid credentials when wrong credentials provided"
+					}
+				}
+			}
+		},
+		"/users/register": {
+			"post": {
+				"description": "username and password in request body i.e. {username: \"josh\", password:\"hello\"}",
+				"consumes": "application/json",
+				"produces": "application/json",
+				"responses": {
+					"201": {
+						"description": "Returns empty request"
+					},
+					"400": {
+						"description": "Return user already exists when user already exists in system"
+					}
+				}
+			}
+		}
+	},
+	"components": {},
+	"tags": []
+}

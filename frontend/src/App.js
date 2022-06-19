@@ -1,0 +1,52 @@
+import './App.css';
+import axios from 'axios';
+import { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes as Switch, Route } from 'react-router-dom';
+import Navbar from './components/Navbar';
+import Upload from './views/Upload';
+import Login from './views/Login';
+import Logout from './views/Logout';
+import Register from './views/Register';
+import Catalogue from './views/Catalogue';
+
+function App() {
+
+  const [loggedIn, setLoggedIn] = useState(false);
+
+  useEffect(() => {
+    async function fetchData() {
+    const token = localStorage.getItem("token")
+
+    if (token) {
+      var data = await axios.get("http://localhost:2814/users/user", {params: {token: token}})
+      if (data.status === 200) {
+        setLoggedIn(true)
+      } else {
+        setLoggedIn(false)
+      }
+    } else {
+      setLoggedIn(false)
+    }
+  }
+  fetchData();
+}, []);
+
+  return (
+    <div>
+      <Router>
+      <Navbar  loggedIn={loggedIn} />
+        <div>
+          <Switch>
+            <Route exact path="/" element={<Catalogue loggedIn={loggedIn} />} />
+            <Route path="/login" element={<Login loggedIn={loggedIn} setLoggedIn={setLoggedIn} />} />
+            <Route path="/logout" element={<Logout loggedIn={loggedIn} setLoggedIn={setLoggedIn} />} />
+            <Route path="/register" element={<Register loggedIn={loggedIn} setLoggedIn={setLoggedIn} />} />
+            <Route path="/upload" element={<Upload loggedIn={loggedIn} />} />
+          </Switch>
+        </div>
+      </Router>
+    </div>
+  );
+}
+
+export default App;
