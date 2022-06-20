@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Navigate } from 'react-router-dom';
+import Uploader from '../components/Uploader';
 
 function Upload(props) {
     const [username, setUsername] = useState('');
@@ -18,7 +19,7 @@ function Upload(props) {
     if (props.loggedIn) {
         return (
             <div>
-                <h2>{username}'s upload interface</h2>
+                <Uploader />
             </div>
         )
     } else {
