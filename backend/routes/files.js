@@ -1,10 +1,10 @@
+var uploader = require('../processes/Uploader.js');
 var express = require('express');
 var fileUpload = require('express-fileupload');
 var cors = require('cors');
 var router = express.Router();
 var bodyParser = require('body-parser');
 var morgan  = require('morgan');
-var _  = require('lodash');
  
 router.use(bodyParser.json());
 router.use(bodyParser.urlencoded({ extended: true }));
@@ -15,7 +15,6 @@ router.use(cors());
 router.use(morgan('dev'));
 
 router.post('/upload', async function (req, res) {
-  console.log("hit me")
   try {
           if (!req.files) {
             res.send({
@@ -24,18 +23,31 @@ router.post('/upload', async function (req, res) {
             });
           } else {
             let comicFile = req.files.comicFile;
-
-            comicFile.mv('./uploads/' + comicFile.name);
-
-            res.send({
-              status: true,
-              message: 'File uploaded',
-              data: {
+            let filetype = comicFile.name.split(".").pop();
+            let supported = "cbz"
+            if (filetype == supported) {
+              let location = './uploads/' + comicFile.name;
+              let filedata = {
                 name: comicFile.name,
-                mimettype: comicFile.mimettype,
-                size: comicFile.size
+                location: location
               }
-            });
+              comicFile.mv(location);
+  
+              res.send({
+                status: true,
+                message: 'File uploaded',
+                data: filedata
+              });
+
+              uploader.upload(filedata);
+
+            } else {
+              res.send({
+                status: true,
+                message: 'Unsupported filetype'
+              });
+            }
+
           }
       } catch (err) {
         console.log(err)
