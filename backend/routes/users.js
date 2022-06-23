@@ -32,7 +32,7 @@ router.get('/user', async function(req, res, next) {
   if(bcrypt.compareSync(decoded.payload.user_id, decoded.payload.hash)) {
       var db = new sqlite('database.db');
       var user = await db.prepare('SELECT * FROM users where id = (?)').get(decoded.payload.user_id);
-      return res.json({ username: user.username })
+      return res.json(user)
   } else {
     return res.status(401).json({"message": "expired"})
   }

@@ -12,6 +12,7 @@ function Uploader() {
 
     async function handleUpload(e) {
         e.preventDefault();
+        const token = localStorage.getItem('token')
         const formData = new FormData();
         formData.append('comicFile', file);
         const config = {
@@ -20,13 +21,14 @@ function Uploader() {
           },
         };
         try {
-            var data = await axios.post("http://localhost:2814/files/upload", formData, config);
+            var data = await axios.post("http://localhost:2814/files/upload?token="+token, formData, config);
             setMessage(data.data.message);
+            console.log(e.response);
         } catch (e) {
-            if (e.response.status === 400) {
+            if (e.response.data.message) {
                 setMessage(e.response.data.message)
             } else {
-                setMessage("An unknown error on registration")
+                setMessage("An unknown error on upload")
             }
         }
         };
