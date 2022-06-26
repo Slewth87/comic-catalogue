@@ -1,0 +1,6 @@
+.DS_Store
+.git
+/backend/node_modules
+/frontend/node_modules
+/backend/database.db
+/backend/uploads
