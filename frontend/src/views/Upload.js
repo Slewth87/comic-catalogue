@@ -16,7 +16,7 @@ function Upload(props) {
         fetch();
     }, []);
 
-    if (props.loggedIn) {
+    if (props.loggedIn || username) {
         return (
             <div>
                 <Uploader />

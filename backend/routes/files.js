@@ -36,58 +36,54 @@ router.use(morgan('dev'));
  *         description: Unkown error returned
  */
 router.post('/upload', async function (req, res, next) {
-  console.log(req.query);
-  var token = req.query.token
+  var token = req.query.token;
+  var message = "Unknown error";
+  var status = 500;
+  var response;
   try {
     var decoded = await jwt.verify(token, "SECRET_KEY", {complete: true});
+    if(bcrypt.compareSync(decoded.payload.user_id, decoded.payload.hash)) {
+      try {
+        console.log(decoded)
+        if (!req.files) {
+          console.log("No file")
+          status = 204;
+        } else {
+          console.log("here")
+          console.log(req)
+          let comicFile = req.files.comicFile;
+          let filetype = comicFile.name.split(".").pop();
+          let supported = "cbz"
+          if (filetype == supported) {
+            let location = './uploads/' + comicFile.name.slice(0, comicFile.name.length -4) + "-" + decoded.payload.user_id + ".zip";
+            let filedata = {
+              name: comicFile.name,
+              location: location,
+              size: comicFile.size,
+              user: decoded.payload.user_id
+            }
+            comicFile.mv(location);
+  
+            response = await uploader.upload(filedata);
+            status = response.status;
+            message = response.message;
+  
+          } else {
+            console.log("this one")
+            message = "Unsupported filetype";
+            status = 415
+          }
+        }
+      } catch (err) {
+        console.log(err)
+      }
+    }
   } catch (error) {
       console.log(error)
-      return res.status(401).json({
-        "message": "Session expired. Please login again"
-      })
+      message = "Session expired. Please login again";
+      status = 401;
   }
-  if(bcrypt.compareSync(decoded.payload.user_id, decoded.payload.hash)) {
-    try {
-      if (!req.files) {
-        res.status(204).send("No file uploaded");
-      } else {
-        let comicFile = req.files.comicFile;
-        let filetype = comicFile.name.split(".").pop();
-        let supported = "cbz"
-        if (filetype == supported) {
-          let location = './uploads/' + comicFile.name;
-          let filedata = {
-            name: comicFile.name,
-            location: location
-          }
-          comicFile.mv(location);
-
-          res.status(201).json({
-            "message": "File uploaded",
-            "data": filedata
-          });
-
-          uploader.upload(filedata);
-
-        } else {
-          res.status(204).json({
-            "status": true,
-            "message": "Unsupported filetype"
-          });
-        }
-      }
-    } catch (err) {
-      console.log(err)
-
-      res.status(500).json({
-        "message": "Unknown error"
-      })
-    }
-  } else {
-    return res.status(401).json({
-      "message": "Session expired. Please login again"
-    })
-  }
+  return res.status(status).send(message);
 });
 
 module.exports = router;

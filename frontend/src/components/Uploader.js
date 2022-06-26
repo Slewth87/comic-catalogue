@@ -8,10 +8,12 @@ function Uploader() {
     function handleSelection(e) {
         e.preventDefault();
         setFile(e.target.files[0]);
+        console.log(e.target.files[0])
     }
 
     async function handleUpload(e) {
         e.preventDefault();
+        console.log("howdy")
         const token = localStorage.getItem('token')
         const formData = new FormData();
         formData.append('comicFile', file);
@@ -21,13 +23,23 @@ function Uploader() {
           },
         };
         try {
+            console.log("data:")
             var data = await axios.post("http://localhost:2814/files/upload?token="+token, formData, config);
-            setMessage(data.data.message);
-            console.log(e.response);
-        } catch (e) {
-            if (e.response.data.message) {
-                setMessage(e.response.data.message)
+            if (data.status === 204) {
+                setMessage("No file selected")
             } else {
+                setMessage(data.data);
+            }
+            console.log("message: " + data.data);
+            console.log("status: " + data.status);
+            console.log("and then");
+        } catch (e) {
+            console.log(e);
+            if (e.response.data) {
+                console.log("henlo")
+                setMessage(e.response.data)
+            } else {
+                console.log("hi")
                 setMessage("An unknown error on upload")
             }
         }
