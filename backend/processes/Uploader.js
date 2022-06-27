@@ -42,7 +42,7 @@ async function upload(file) {
                 // Call to store the metadata from the .xml file contained within
                 var comicInfo = XMLReader(extract);
                 message = {
-                    message: "Upload successful",
+                    message: "Upload of " + comicInfo.Series + " Vol. " + comicInfo.Volume + " #" + comicInfo.Number + " successful",
                     comic: comicInfo
                 };
                 status = 201;
