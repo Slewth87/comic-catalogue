@@ -28,11 +28,13 @@ function Uploader() {
             if (data.status === 204) {
                 setMessage("No file selected")
             } else {
-                setMessage(data.data);
+                setMessage(data.data.message);
             }
-            console.log("message: " + data.data);
+            console.log(data)
+            console.log("message: " + data.data.message);
             console.log("status: " + data.status);
-            console.log("and then");
+            console.log("comic");
+            console.log(data.data.comic);
         } catch (e) {
             console.log(e);
             if (e.response.data) {
