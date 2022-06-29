@@ -1,9 +1,12 @@
 import axios from 'axios';
 import { useState} from 'react';
+import Modals from './Modals.js'
 
 function Uploader() {
     const [file, setFile] = useState();
     const [message, setMessage] = useState('');
+    const [comicInfo, setComicInfo] = useState('');
+    const [modalShow, setModalShow] = useState(false);
 
     function handleSelection(e) {
         e.preventDefault();
@@ -29,6 +32,8 @@ function Uploader() {
                 setMessage("No file selected")
             } else {
                 setMessage(data.data.message);
+                setComicInfo(data.data.comic);
+                setModalShow(true);
             }
             console.log(data)
             console.log("message: " + data.data.message);
@@ -49,6 +54,11 @@ function Uploader() {
 
     return (
         <div>
+            <Modals
+            show={modalShow}
+            comicinfo={comicInfo}
+            onHide={() => setModalShow(false)}
+            />
             <form>
                 <h2>Upload file</h2>
                 <input type="file" onChange={handleSelection} />
