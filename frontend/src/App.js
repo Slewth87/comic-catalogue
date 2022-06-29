@@ -2,7 +2,7 @@ import './App.css';
 import axios from 'axios';
 import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes as Switch, Route } from 'react-router-dom';
-import Navbar from './components/Navbar';
+import MyNavbar from './components/MyNavbar';
 import Upload from './views/Upload';
 import Login from './views/Login';
 import Logout from './views/Logout';
@@ -34,7 +34,7 @@ function App() {
   return (
     <div>
       <Router>
-      <Navbar  loggedIn={loggedIn} />
+      <MyNavbar  loggedIn={loggedIn} />
         <div>
           <Switch>
             <Route exact path="/" element={<Catalogue loggedIn={loggedIn} />} />
