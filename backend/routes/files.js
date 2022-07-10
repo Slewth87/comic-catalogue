@@ -8,6 +8,7 @@ var router = express.Router();
 var bodyParser = require('body-parser');
 var morgan  = require('morgan');
 var fs = require('fs');
+const sqlite = require('better-sqlite3');
  
 router.use(bodyParser.json());
 router.use(bodyParser.urlencoded({ extended: true }));
@@ -85,6 +86,70 @@ router.post('/upload', async function (req, res, next) {
       status = 401;
   }
   return res.status(status).send(message);
+});
+
+/**
+ * @openapi
+ * /files/save:
+ *   get:
+ *     description: 'Saved an uploaded file'
+ *     consumes:
+ *       multipart/form-data
+ *     produces:
+ *       application/json
+ *     responses:
+ *       201:
+ *         description: Returns success message confirming uploaded file
+ *       204:
+ *         description: Returns message advising no file received
+ *       401:
+ *         description: Notifies that passed token has expired
+ *       500:
+ *         description: Unkown error returned
+ */
+ router.post('/save', async function (req, res, next) {
+  console.log("Params:")
+  console.log(req.body.params)
+  var token = req.body.params.token;
+  var message = "Unknown error";
+  var status = 500;
+  try {
+    var decoded = await jwt.verify(token, "SECRET_KEY", {complete: true});
+    if(bcrypt.compareSync(decoded.payload.user_id, decoded.payload.hash)) {
+      try {
+        status = 200
+        uploader.save(req.body.params, decoded.payload.user_id)
+      } catch (error) {
+        console.log(error)
+      }
+    }
+  } catch (error) {
+      console.log(error)
+      message = "Session expired. Please login again";
+      status = 401;
+  }
+  return res.status(status).send(message);
+});
+
+router.get('/comics', async function(req, res, next) {
+  var token = req.query.token
+
+  try {
+    var decoded = await jwt.verify(token, "SECRET_KEY", {complete: true});
+  } catch (error) {
+      console.log(error)
+      return res.status(401).json({"message": "expired"})
+  }
+  if(bcrypt.compareSync(decoded.payload.user_id, decoded.payload.hash)) {
+      var db = new sqlite('database.db');
+      // var comics = await db.prepare('SELECT * FROM comics WHERE user_id = (?)').get(decoded.payload.user_id);
+      var comics = await db.prepare('SELECT * FROM comics WHERE user_id = (?)').all(decoded.payload.user_id)
+
+      return res.json(comics)
+  } else {
+    return res.status(401).json({"message": "expired"})
+  }
+
 });
 
 module.exports = router;
