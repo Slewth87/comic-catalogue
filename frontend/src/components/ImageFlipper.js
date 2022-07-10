@@ -1,12 +1,13 @@
 function ImageFlipper(props) {
-    console.log(props)
-    var file = "http://localhost:2814"+props.images[props.number.Image].Source
+    var file = "http://localhost:2814"+props.images[props.number.image].source
     return (
-              <img
-                className="d-block w-100"
-                src={file}
-                alt={"Page " + props.number }
-              />
+      <div className="d-block">
+        <img id={"thumb"+props.number.image}
+          className="d-block w-100"
+          src={file}
+          alt={"Page " + props.number }
+        />
+      </div>
     );
 }
 
