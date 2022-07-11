@@ -4,6 +4,6 @@
 /frontend/node_modules
 /backend/database.db
 /backend/uploads
-/backend/tmp
-/backend/comics
-/backend/thumbnails
+/backend/tmp/
+/backend/comics/
+/backend/thumbnails/
