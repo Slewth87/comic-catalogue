@@ -1,16 +1,17 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Navigate } from 'react-router-dom';
+import Comics from '../components/Comics';
 
 function Catalogue(props) {
-    const [username, setUsername] = useState('');
+    const [user, setUser] = useState('');
 
     useEffect(() => {
         async function fetch() {
             const token = localStorage.getItem('token')
 
             var data = await axios.get("http://localhost:2814/users/user", {params: {token: token}})
-            setUsername(data.data.username)
+            setUser(data.data.id)
         }
         fetch();
     }, []);
@@ -18,7 +19,7 @@ function Catalogue(props) {
     if (props.loggedIn) {
         return (
             <div>
-                <h2>{username}'s Catalogue</h2>
+                <Comics user={user} />
             </div>
         )
     } else {

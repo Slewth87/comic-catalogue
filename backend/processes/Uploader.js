@@ -399,9 +399,23 @@ function zipIt(data, user_id) {
     } else {
         filename = filename + "-" + user_id
     }
-    var locator = "./comics/" + filename + ".cbz"
 
-    zip.writeZip(locator)
+    if (data.thumb) {
+        fs.copyFile("." + data.thumb, "./thumbnails/" + filename + ".jpg", (err) => {
+            if (err) {
+                console.log("Error creating thumbnail: " + err)
+            } else {
+                console.log("Thumbnail created")
+            }
+        });
+    }
+
+    var locator = {
+        cbz: "/comics/" + filename + ".cbz",
+        thumb: "/thumbnails/" + filename + ".jpg"
+    }
+
+    zip.writeZip("." + locator.cbz)
     
     return locator;
 }
@@ -451,8 +465,8 @@ function storeIt(data, location, user_id) {
     var genre;
     var comic_format;
     var characters;
-    var thumbnail;
-    var comic_file = location;
+    var thumbnail = location.thumb;
+    var comic_file = location.cbz;
 
 
     if (data.title) {
@@ -520,9 +534,6 @@ function storeIt(data, location, user_id) {
     }
     if (data.characters) {
         characters = data.characters
-    }
-    if (data.thumb) {
-        thumbnail = data.thumb
     }
 
     try {
