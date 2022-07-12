@@ -133,7 +133,6 @@ router.post('/upload', async function (req, res, next) {
 
 router.get('/comics', async function(req, res, next) {
   var token = req.query.token
-
   try {
     var decoded = await jwt.verify(token, "SECRET_KEY", {complete: true});
   } catch (error) {
@@ -141,11 +140,17 @@ router.get('/comics', async function(req, res, next) {
       return res.status(401).json({"message": "expired"})
   }
   if(bcrypt.compareSync(decoded.payload.user_id, decoded.payload.hash)) {
+    if (req.query.id) {
+      console.log("Checked the comic")
       var db = new sqlite('database.db');
-      // var comics = await db.prepare('SELECT * FROM comics WHERE user_id = (?)').get(decoded.payload.user_id);
-      var comics = await db.prepare('SELECT * FROM comics WHERE user_id = (?)').all(decoded.payload.user_id)
-
+      var comics = await db.prepare('SELECT * FROM comics WHERE id = (?)').all(req.query.id)
+      console.log(comics)
       return res.json(comics)
+    } else {
+      var db = new sqlite('database.db');
+      var comics = await db.prepare('SELECT * FROM comics WHERE user_id = (?) ORDER BY publication ASC').all(decoded.payload.user_id)
+
+      return res.json(comics)}
   } else {
     return res.status(401).json({"message": "expired"})
   }

@@ -8,6 +8,7 @@ import Login from './views/Login';
 import Logout from './views/Logout';
 import Register from './views/Register';
 import Catalogue from './views/Catalogue';
+import ComicView from './views/ComicView';
 
 function App() {
 
@@ -42,6 +43,7 @@ function App() {
             <Route path="/logout" element={<Logout loggedIn={loggedIn} setLoggedIn={setLoggedIn} />} />
             <Route path="/register" element={<Register loggedIn={loggedIn} setLoggedIn={setLoggedIn} />} />
             <Route path="/upload" element={<Upload loggedIn={loggedIn} />} />
+            <Route path="/comic/:id" element={<ComicView loggedIn={loggedIn}/>} />
           </Switch>
         </div>
       </Router>

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Col, Row, Container } from "react-bootstrap";
 import axios from 'axios';
-import Comic from './Comic';
+import ComicCard from './ComicCard';
 
 function Comics () {
     const [comics, setComics] = useState([]);
@@ -27,7 +27,7 @@ function Comics () {
                 comics.map(function(i, index) {
                     return (
                         <Col sm={3} key={index} className="comicLibrary pt-2">
-                            <Comic comic={i} />
+                            <ComicCard comic={i} />
                         </Col>
                     )
                 })

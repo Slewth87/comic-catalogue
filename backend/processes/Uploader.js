@@ -451,8 +451,7 @@ function storeIt(data, location, user_id) {
     var alternate_series;
     var summary;
     var notes;
-    var publication_year;
-    var publication_month;
+    var publication;
     var writer;
     var penciller;
     var inker;
@@ -494,10 +493,15 @@ function storeIt(data, location, user_id) {
         notes = data.notes
     }
     if (data.year) {
-        publication_year = data.year
-    }
-    if (data.month) {
-        publication_month = data.month
+        if (data.month) {
+            if (data.month < 10) {
+                publication = data.year + "-0" + data.month + "-01"
+            } else {
+                publication = data.year + "-" + data.month + "-01"
+            }
+        } else {
+            publication = data.year + "-01-01"
+        }
     }
     if (data.writer) {
         writer = data.writer
@@ -538,7 +542,7 @@ function storeIt(data, location, user_id) {
 
     try {
         var db = new sqlite('database.db');
-        db.prepare('INSERT INTO comics (user_id, title, series, issue_number, series_count, volume, alternate_series, summary, notes, publication_year, publication_month, writer, penciller, inker, colorist, letterer, cover_artist, editor, publisher, imprint, genre, comic_format, characters, thumbnail, comic_file) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)').run(user_id, title, series, issue_number, series_count, volume, alternate_series, summary, notes, publication_year, publication_month, writer, penciller, inker, colorist, letterer, cover_artist, editor, publisher, imprint, genre, comic_format, characters, thumbnail, comic_file);
+        db.prepare('INSERT INTO comics (user_id, title, series, issue_number, series_count, volume, alternate_series, summary, notes, publication, writer, penciller, inker, colorist, letterer, cover_artist, editor, publisher, imprint, genre, comic_format, characters, thumbnail, comic_file) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)').run(user_id, title, series, issue_number, series_count, volume, alternate_series, summary, notes, publication, writer, penciller, inker, colorist, letterer, cover_artist, editor, publisher, imprint, genre, comic_format, characters, thumbnail, comic_file);
         var upload = db.prepare('SELECT * FROM comics WHERE user_id = (?)').all(user_id)
         console.log("Database updated")
         console.log(upload)
