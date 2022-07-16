@@ -26,7 +26,7 @@ function Comics () {
                 {
                 comics.map(function(i, index) {
                     return (
-                        <Col sm={3} key={index} className="comicLibrary pt-2">
+                        <Col sm={2} key={index} className="comicLibrary pt-2">
                             <ComicCard comic={i} />
                         </Col>
                     )

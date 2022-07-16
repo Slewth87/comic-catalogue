@@ -1,38 +1,36 @@
-.App {
-  text-align: center;
+.catalog-comic {
+    text-decoration: none;
+    color: black;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.catalog-comic:hover {
+    text-decoration: none;
+    color: black;
+    margin: -2%;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.comic-view {
+    margin-top: 0.2rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+.display-comic {
+    margin: auto;
+    width: 85%;
 }
 
-.App-link {
-  color: #61dafb;
+.comic-img {
+    width: auto;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.comic-buttons {
+    max-width: 200px;
+    margin: auto;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+.comic-thumb {
+    max-width: 350px;
 }
