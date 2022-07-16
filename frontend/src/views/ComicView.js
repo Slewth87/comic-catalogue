@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import Comic from '../components/Comic'
 
 function ComicView() {
@@ -20,7 +20,10 @@ function ComicView() {
         console.log("borb")
         console.log(comic)
         return (
-            <Comic comic={comic}/>
+            <div className="display-comic">
+                <Link to="/">← Back</Link>
+                <Comic comic={comic}/>
+            </div>
         )
     } else {
         return (

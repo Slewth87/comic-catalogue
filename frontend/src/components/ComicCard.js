@@ -16,7 +16,7 @@ function ComicCard(props) {
 
     console.log(thumbnail)
     return (
-        <Card className="h-100" as={Link} to={{pathname: "/comic/"+reference }} id={reference}>
+        <Card className="h-100 catalog-comic" as={Link} to={{pathname: "/comic/"+reference }} id={reference}>
             <Card.Img variant="top" src={thumbnail} />
             <Card.Body className="d-flex flex-column">
                 <Card.Title>{props.comic.series} v{props.comic.volume} #{props.comic.issue_number}</Card.Title>
