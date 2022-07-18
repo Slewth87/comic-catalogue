@@ -1,6 +1,4 @@
-import { useState } from 'react';
 import { Col, Row, Container } from "react-bootstrap";
-import axios from 'axios';
 import ComicCard from './ComicCard';
 
 function Comics (props) {

@@ -26,18 +26,24 @@ function Search (props) {
 
         for (let i=0;i<possible.data.length;i++) {
             for (let j=0;j<categories.length;j++) {
-                long = long + possible.data[i][categories[j]]
+                if (possibles === "Year") {
+                    long = long + possible.data[i][categories[j]].split("-")[0]
+                } else {
+                    long = long + possible.data[i][categories[j]]
+                }
                 if (j < categories.length - 1) {
-                    long = long + ", "
+                        long = long + ", "
                 }
             }
             if (i < possible.data.length - 1) {
                 long = long + ", "
             }
         }
-        
-        var filtered = [...new Set(long.split(", "))]
-        setPossible(filtered);
+        var normalised = [...new Set(long.split(", "))]
+        var filtered = normalised.filter(element => {
+            return element !== "null";
+        })
+        setPossible(filtered.sort());
     }
 
     function clear() {
@@ -61,6 +67,7 @@ function Search (props) {
                     <option>Editor</option>
                     <option>Cover Artist</option>
                     <option>Genre</option>
+                    <option>Year</option>
                     <option>Publisher</option>
                     <option>Imprint</option>
                 </Form.Select>

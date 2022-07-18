@@ -173,8 +173,20 @@ router.get('/comics', async function(req, res) {
         }
         keyword = keyword + broken[broken.length-1]
       }
-      if (column === "Series") {
-        var sql = "SELECT * FROM comics WHERE user_id = " + decoded.payload.user_id + " AND series LIKE '%" + keyword + "%' OR alternate_series LIKE '%" + keyword + "%' ORDER BY publication ASC"
+      if (column === "All") {
+        var sql = "SELECT * FROM comics WHERE user_id = " + decoded.payload.user_id + " AND ( series LIKE '%" + keyword + "%' OR alternate_series LIKE '%" + keyword + "%' OR writer LIKE '%" + keyword + "%' OR penciller LIKE '%" + keyword + "%' OR inker LIKE '%" + keyword + "%' OR colorist LIKE '%" + keyword + "%' OR letterer LIKE '%" + keyword + "%' OR cover_artist LIKE '%" + keyword + "%' OR editor LIKE '%" + keyword + "%' OR publisher LIKE '%" + keyword + "%' OR imprint LIKE '%" + keyword + "%' OR genre LIKE '%" + keyword + "%' OR characters LIKE '%" + keyword + "%' ) ORDER BY publication ASC"
+      } else if (column === "Series") {
+        var sql = "SELECT * FROM comics WHERE user_id = " + decoded.payload.user_id + " AND ( series LIKE '%" + keyword + "%' OR alternate_series LIKE '%" + keyword + "%' ) ORDER BY publication ASC"
+      } else if (column === "Character") {
+        var sql = "SELECT * FROM comics WHERE user_id = " + decoded.payload.user_id + " AND characters LIKE '%" + keyword + "%' ORDER BY publication ASC"
+      } else if (column === "Creator") {
+        var sql = "SELECT * FROM comics WHERE user_id = " + decoded.payload.user_id + " AND ( writer LIKE '%" + keyword + "%' OR penciller LIKE '%" + keyword + "%' OR inker LIKE '%" + keyword + "%' OR colorist LIKE '%" + keyword + "%' OR letterer LIKE '%" + keyword + "%' OR cover_artist LIKE '%" + keyword + "%' OR editor LIKE '%" + keyword + "%' ) ORDER BY publication ASC"
+      } else if (column === "Artist") {
+        var sql = "SELECT * FROM comics WHERE user_id = " + decoded.payload.user_id + " AND ( penciller LIKE '%" + keyword + "%' OR inker LIKE '%" + keyword + "%' OR colorist LIKE '%" + keyword + "%' OR letterer LIKE '%" + keyword + "%' OR cover_artist LIKE '%" + keyword + "%' ) ORDER BY publication ASC"
+      } else if (column === "Cover Artist") {
+        var sql = "SELECT * FROM comics WHERE user_id = " + decoded.payload.user_id + " AND cover_artist LIKE '%" + keyword + "%' ORDER BY publication ASC"
+      } else if (column === "Year") {
+        var sql = "SELECT * FROM comics WHERE user_id = " + decoded.payload.user_id + " AND ( publication BETWEEN '" + keyword + "-01-01' AND '" + keyword + "-12-31' ) ORDER BY publication ASC"
       } else {
         var sql = "SELECT * FROM comics WHERE user_id = " + decoded.payload.user_id + " AND " + column.toLowerCase() + " LIKE '%" + keyword + "%' ORDER BY publication ASC"
       }
@@ -234,6 +246,10 @@ router.get('/comics', async function(req, res) {
       var field = "penciller, inker, colorist, letterer, cover_artist"
     } else if (req.query.field === "Character") {
       var field = "characters"
+    } else if (req.query.field === "Cover Artist") {
+      var field = "cover_artist"
+    } else if (req.query.field === "Year") {
+      var field = "publication"
     } else {
       var field = req.query.field.toLowerCase();
     }
