@@ -20,9 +20,9 @@ function MyNavbar(props) {
                     <Navbar.Toggle aria-controls="responsive-navbar-nav" />
                     <Navbar.Collapse id="responsive-navbar-nav">
                         <Nav className="ms-auto align-items-end">
-                            <Nav.Link as={Link} to={{pathname: "/", state: { props: loggedIn},}}>Catalogue</Nav.Link>
-                            <Nav.Link as={Link} to={{pathname: "/upload", state: { props: loggedIn},}}>Upload Comic</Nav.Link>
-                            <Nav.Link as={Link} to={{pathname: "/logout", state: { props: loggedIn},}}>Logout</Nav.Link>
+                            <Nav.Link as={Link} to={{pathname: "/", state: { props: loggedIn}}}>Catalogue</Nav.Link>
+                            <Nav.Link as={Link} to={{pathname: "/upload", state: { props: loggedIn}}}>Upload Comic</Nav.Link>
+                            <Nav.Link as={Link} to={{pathname: "/logout", state: { props: loggedIn}}}>Logout</Nav.Link>
                         </Nav>
                     </Navbar.Collapse>
                 </Container>

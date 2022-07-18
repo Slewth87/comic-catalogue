@@ -131,7 +131,20 @@ router.post('/upload', async function (req, res, next) {
   return res.status(status).send(message);
 });
 
-router.get('/comics', async function(req, res, next) {
+/**
+ * @openapi
+ * /files/comics:
+ *   get:
+ *     description: 'Retrieve comics'
+ *     produces:
+ *       application/json
+ *     responses:
+ *       200:
+ *         description: Returns success message confirming comic retrieved
+ *       401:
+ *         description: Notifies that passed token has expired
+ */
+router.get('/comics', async function(req, res) {
   var token = req.query.token
   try {
     var decoded = await jwt.verify(token, "SECRET_KEY", {complete: true});
@@ -140,12 +153,96 @@ router.get('/comics', async function(req, res, next) {
       return res.status(401).json({"message": "expired"})
   }
   if(bcrypt.compareSync(decoded.payload.user_id, decoded.payload.hash)) {
-    if (req.query.id) {
+    if (req.query.search) {
+      const search = JSON.parse(req.query.search)
+      var column = search.field;
+      var keyword = search.keyword;
+      if (keyword.includes("'")) {
+        let broken = keyword.split("'");
+        keyword = "";
+        for (let i=0;i < broken.length - 1;i++) {
+          keyword = keyword + broken[i] + "''"
+        }
+        keyword = keyword + broken[broken.length-1]
+      }
+      if (keyword.includes('"')) {
+        let broken = keyword.split('"');
+        keyword = "";
+        for (let i=0;i < broken.length - 1;i++) {
+          keyword = keyword + broken[i] + '""'
+        }
+        keyword = keyword + broken[broken.length-1]
+      }
+      if (column === "Series") {
+        var sql = "SELECT * FROM comics WHERE user_id = " + decoded.payload.user_id + " AND series LIKE '%" + keyword + "%' OR alternate_series LIKE '%" + keyword + "%' ORDER BY publication ASC"
+      } else {
+        var sql = "SELECT * FROM comics WHERE user_id = " + decoded.payload.user_id + " AND " + column.toLowerCase() + " LIKE '%" + keyword + "%' ORDER BY publication ASC"
+      }
+      console.log(sql)
+      var db = new sqlite('database.db');
+      var comics = await db.prepare(sql).all()
+      // console.log(comics)
+      return res.json(comics)
+    } else if (req.query.id) {
       console.log("Checked the comic")
       var db = new sqlite('database.db');
       var comics = await db.prepare('SELECT * FROM comics WHERE id = (?)').all(req.query.id)
       console.log(comics)
       return res.json(comics)
+    } else {
+      var db = new sqlite('database.db');
+      var comics = await db.prepare('SELECT * FROM comics WHERE user_id = (?) ORDER BY publication ASC').all(decoded.payload.user_id)
+
+      return res.json(comics)}
+  } else {
+    return res.status(401).json({"message": "expired"})
+  }
+
+});
+
+/**
+ * @openapi
+ * /files/comicsfields:
+ *   get:
+ *     description: 'Retrieve comic searchable possibilities'
+ *     produces:
+ *       application/json
+ *     responses:
+ *       200:
+ *         description: Returns success message confirming comic retrieved
+ *       401:
+ *         description: Notifies that passed token has expired
+ */
+ router.get('/comicsfields', async function(req, res) {
+  var token = req.query.token
+  try {
+    var decoded = await jwt.verify(token, "SECRET_KEY", {complete: true});
+  } catch (error) {
+      console.log(error)
+      return res.status(401).json({"message": "expired"})
+  }
+  if(bcrypt.compareSync(decoded.payload.user_id, decoded.payload.hash)) {
+   if (req.query.field) {
+    console.log(req.query.field)
+    if (req.query.field === "All") {
+      var field = "series, alternate_series, writer, penciller, inker, colorist, letterer, cover_artist, editor, publisher, imprint, genre, characters"
+    } else if (req.query.field === "Series") {
+      var field = "series, alternate_series"
+    } else if (req.query.field === "Creator") {
+      var field = "writer, penciller, inker, colorist, letterer, cover_artist, editor"
+    } else if (req.query.field === "Artist") {
+      var field = "penciller, inker, colorist, letterer, cover_artist"
+    } else if (req.query.field === "Character") {
+      var field = "characters"
+    } else {
+      var field = req.query.field.toLowerCase();
+    }
+      var sql = 'SELECT DISTINCT ' + field + ' FROM comics'
+      console.log(sql)
+      var db = new sqlite('database.db');
+      var possible = await db.prepare(sql).all();
+      console.log(possible)
+        return res.json(possible)
     } else {
       var db = new sqlite('database.db');
       var comics = await db.prepare('SELECT * FROM comics WHERE user_id = (?) ORDER BY publication ASC').all(decoded.payload.user_id)
