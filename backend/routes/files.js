@@ -46,18 +46,19 @@ router.post('/upload', async function (req, res, next) {
     var decoded = await jwt.verify(token, "SECRET_KEY", {complete: true});
     if(bcrypt.compareSync(decoded.payload.user_id, decoded.payload.hash)) {
       try {
-        console.log(decoded)
+        // console.log(decoded)
         if (!req.files) {
-          console.log("No file")
           status = 204;
         } else {
-          console.log("here")
-          console.log(req)
           let comicFile = req.files.comicFile;
           let filetype = comicFile.name.split(".").pop();
-          let supported = "cbz"
-          if (filetype == supported) {
-            let location = './uploads/' + comicFile.name.slice(0, comicFile.name.length -4) + "-" + decoded.payload.user_id + ".zip";
+          let supported = ["cbz","cbr"]
+          if (filetype == "cbz") {
+            var location = './uploads/' + comicFile.name.slice(0, comicFile.name.length -4) + "-" + decoded.payload.user_id + ".zip";
+          } else if (filetype == "cbr") {
+            var location = './uploads/' + comicFile.name.slice(0, comicFile.name.length -4) + "-" + decoded.payload.user_id + ".rar";
+          }
+          if (supported.includes(filetype)) {
             let filedata = {
               name: comicFile.name,
               location: location,
@@ -71,7 +72,6 @@ router.post('/upload', async function (req, res, next) {
             message = response.message;
   
           } else {
-            console.log("this one")
             message = "Unsupported filetype";
             status = 415
           }
@@ -107,9 +107,7 @@ router.post('/upload', async function (req, res, next) {
  *       500:
  *         description: Unkown error returned
  */
- router.post('/save', async function (req, res, next) {
-  console.log("Params:")
-  console.log(req.body.params)
+ router.post('/save', async function (req, res) {
   var token = req.body.params.token;
   var message = "Unknown error";
   var status = 500;
@@ -193,13 +191,10 @@ router.get('/comics', async function(req, res) {
       console.log(sql)
       var db = new sqlite('database.db');
       var comics = await db.prepare(sql).all()
-      // console.log(comics)
       return res.json(comics)
     } else if (req.query.id) {
-      console.log("Checked the comic")
       var db = new sqlite('database.db');
       var comics = await db.prepare('SELECT * FROM comics WHERE id = (?)').all(req.query.id)
-      console.log(comics)
       return res.json(comics)
     } else {
       var db = new sqlite('database.db');
@@ -235,7 +230,6 @@ router.get('/comics', async function(req, res) {
   }
   if(bcrypt.compareSync(decoded.payload.user_id, decoded.payload.hash)) {
    if (req.query.field) {
-    console.log(req.query.field)
     if (req.query.field === "All") {
       var field = "series, alternate_series, writer, penciller, inker, colorist, letterer, cover_artist, editor, publisher, imprint, genre, characters"
     } else if (req.query.field === "Series") {
@@ -257,7 +251,6 @@ router.get('/comics', async function(req, res) {
       console.log(sql)
       var db = new sqlite('database.db');
       var possible = await db.prepare(sql).all();
-      console.log(possible)
         return res.json(possible)
     } else {
       var db = new sqlite('database.db');

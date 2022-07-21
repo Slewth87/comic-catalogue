@@ -1,4 +1,5 @@
 const AdmZip = require("adm-zip");
+const Unrar = require('node-unrar-js');
 const fs = require("fs");
 const parser = require('xml2json');
 const sizeOf = require('image-size');
@@ -7,8 +8,8 @@ const sqlite = require('better-sqlite3');
 
 async function upload(file) {
     // prep folder location and name data
+    console.log("first hit of uploader")
     var folderName = file.name.slice(0, file.name.length -4) + "-" + file.user
-    var fileLocator = file.location.slice(0, file.location.length -4) + ".zip";
     // initialise variables for use in loop
     var loop = 0;
     var stored = 0;
@@ -18,21 +19,13 @@ async function upload(file) {
     var message;
     var status;
 
-    // Logging
-    // console.log(fileLocator)
-    // console.log(file)
-    // console.log("Name: " + folderName)
-    // console.log("Location: " + fileLocator)
-    // console.log("Size: " + file.size)
-    // console.log("Stored: " + stored)
-
     // Loop to make sure upload is complete before extracting zipped files
     while (stored < file.size) {
         // allowing a minute for the upload to complete
         if (loop < 60) {
             loop++;
             await wait(1000);
-            stored = fs.statSync(fileLocator).size;
+            stored = fs.statSync(file.location).size;
             // checks upload status by comparing the raw file size to the stored file size
             if (stored < file.size) {
                 await wait(1000);
@@ -40,8 +33,15 @@ async function upload(file) {
             } else {
                 // Extracts the files from the zip
                 var extract = "./tmp/" + folderName
-                var zip = new AdmZip(fileLocator);
-                zip.extractAllTo(extract)
+                console.log("Extractor")
+                if (file.location.split(".").pop() === "zip") {
+                    console.log("Extract zip")
+                    var zip = new AdmZip(file.location);
+                    zip.extractAllTo(extract)
+                } else if (file.location.split(".").pop() === "rar") {
+                    console.log("Extract rar")
+                    await rarExtractor(file.location, extract)
+                }
                 // console.log("Extracted on loop " + loop + ": " + stored);
                 // Call to store the metadata from the .xml file contained within
                 var comicInfo = await XMLReader(extract);
@@ -71,6 +71,19 @@ async function upload(file) {
     return response;
 }
 
+// async function extractRarArchive(file, destination) {
+//     try {
+//       const extractor = await createExtractorFromFile({
+//         filepath: file,
+//         targetPath: destination
+//       });
+  
+//       [...extractor.extract().files];
+//     } catch (err) {
+//       console.log(err);
+//     }
+//   }
+
 // extracting the data from the xml file
 async function XMLReader(extract) {
     // need to find the xml file first, checks top level and subdirectory if zip format uses one
@@ -99,6 +112,19 @@ async function XMLReader(extract) {
     console.log(rawInfo)
     var comicInfo = normaliser(rawInfo, extract);
     return comicInfo;
+}
+
+async function rarExtractor(file, destination) {
+    try {
+        const extractor = await Unrar.createExtractorFromFile({
+            filepath: file,
+            targetPath: destination
+        });
+
+        [...extractor.extract().files];
+    } catch (err) {
+        console.error(err);
+    }
 }
 
 function extractor(extract) {
@@ -164,78 +190,104 @@ function normaliser(rawInfo, location) {
             pageCount++;
         }
     }
-
-    for (let i=0;i<Object.keys(rawInfo).length;i++) {
-        if (Object.keys(rawInfo)[i] === "Title") {
-            title = rawInfo[Object.keys(rawInfo)[i]]
-        } else if (Object.keys(rawInfo)[i] === "Series") {
-            series = rawInfo[Object.keys(rawInfo)[i]]
-        } else if (Object.keys(rawInfo)[i] === "Number") {
-            number = rawInfo[Object.keys(rawInfo)[i]]
-        }  else if (Object.keys(rawInfo)[i] === "Count") {
-            count = rawInfo[Object.keys(rawInfo)[i]]
-        } else if (Object.keys(rawInfo)[i] === "Volume") {
-            volume = rawInfo[Object.keys(rawInfo)[i]]
-        } else if (Object.keys(rawInfo)[i] === "AlternateSeries") {
-            alternateSeries = rawInfo[Object.keys(rawInfo)[i]]
-        } else if (Object.keys(rawInfo)[i] === "Summary") {
-            summary = rawInfo[Object.keys(rawInfo)[i]]
-        } else if (Object.keys(rawInfo)[i] === "Notes") {
-            notes = rawInfo[Object.keys(rawInfo)[i]]
-        } else if (Object.keys(rawInfo)[i] === "Year") {
-            year = rawInfo[Object.keys(rawInfo)[i]]
-        } else if (Object.keys(rawInfo)[i] === "Month") {
-            month = rawInfo[Object.keys(rawInfo)[i]]
-        } else if (Object.keys(rawInfo)[i] === "Writer") {
-            writer = rawInfo[Object.keys(rawInfo)[i]]
-        } else if (Object.keys(rawInfo)[i] === "Penciller") {
-            penciller = rawInfo[Object.keys(rawInfo)[i]]
-        } else if (Object.keys(rawInfo)[i] === "Inker") {
-            inker = rawInfo[Object.keys(rawInfo)[i]]
-        } else if (Object.keys(rawInfo)[i] === "Colorist") {
-            colorist = rawInfo[Object.keys(rawInfo)[i]]
-        } else if (Object.keys(rawInfo)[i] === "Letterer") {
-            letterer = rawInfo[Object.keys(rawInfo)[i]]
-        } else if (Object.keys(rawInfo)[i] === "CoverArtist" || Object.keys(rawInfo)[i] === "Cover") {
-            coverArtist = rawInfo[Object.keys(rawInfo)[i]]
-        } else if (Object.keys(rawInfo)[i] === "Editor") {
-            editor = rawInfo[Object.keys(rawInfo)[i]]
-        } else if (Object.keys(rawInfo)[i] === "Publisher") {
-            publisher = rawInfo[Object.keys(rawInfo)[i]]
-        } else if (Object.keys(rawInfo)[i] === "Imprint") {
-            imprint = rawInfo[Object.keys(rawInfo)[i]]
-        } else if (Object.keys(rawInfo)[i] === "Genre") {
-            genre = rawInfo[Object.keys(rawInfo)[i]]
-        } else if (Object.keys(rawInfo)[i] === "Format") {
-            format = rawInfo[Object.keys(rawInfo)[i]]
-        } else if (Object.keys(rawInfo)[i] === "Characters") {
-            characters = rawInfo[Object.keys(rawInfo)[i]]
-        } else if (Object.keys(rawInfo)[i] === "Pages") {
-            var imageNo = 0;
-            var page = [pageCount];
-            pages = rawInfo[Object.keys(rawInfo)[i]];
-            for (let i=0; i<files.length; i++) {
-                // checks if the current entry is an .jpg file
-                if (files[i].split(".").pop().toLowerCase() == "jpg" || files[i].split(".").pop().toLowerCase() == "jpeg") {
-                    var type = null;
-                    var source = location.split(".").pop() + "/" + files[i];
-                    if (pages[Object.keys(pages)[0]][imageNo].type) {
-                        type = Pages[Object.keys(Pages)[0]][imageNo].type;
-                    }
-                    var dimensions = sizeOf(location+"/"+files[i])
-                    page[imageNo] = {
-                        image: imageNo,
-                        type: type,
-                        imageWidth: dimensions.width,
-                        imageHeight: dimensions.height,
-                        source: source
-                    }
-                    imageNo++;
-                }
-            }
-            pages = page;
+    if (rawInfo != null) {
+        for (let i=0;i<Object.keys(rawInfo).length;i++) {
+            if (Object.keys(rawInfo)[i] === "Title") {
+                title = rawInfo[Object.keys(rawInfo)[i]]
+            } else if (Object.keys(rawInfo)[i] === "Series") {
+                series = rawInfo[Object.keys(rawInfo)[i]]
+            } else if (Object.keys(rawInfo)[i] === "Number") {
+                number = rawInfo[Object.keys(rawInfo)[i]]
+            }  else if (Object.keys(rawInfo)[i] === "Count") {
+                count = rawInfo[Object.keys(rawInfo)[i]]
+            } else if (Object.keys(rawInfo)[i] === "Volume") {
+                volume = rawInfo[Object.keys(rawInfo)[i]]
+            } else if (Object.keys(rawInfo)[i] === "AlternateSeries") {
+                alternateSeries = rawInfo[Object.keys(rawInfo)[i]]
+            } else if (Object.keys(rawInfo)[i] === "Summary") {
+                summary = rawInfo[Object.keys(rawInfo)[i]]
+            } else if (Object.keys(rawInfo)[i] === "Notes") {
+                notes = rawInfo[Object.keys(rawInfo)[i]]
+            } else if (Object.keys(rawInfo)[i] === "Year") {
+                year = rawInfo[Object.keys(rawInfo)[i]]
+            } else if (Object.keys(rawInfo)[i] === "Month") {
+                month = rawInfo[Object.keys(rawInfo)[i]]
+            } else if (Object.keys(rawInfo)[i] === "Writer") {
+                writer = rawInfo[Object.keys(rawInfo)[i]]
+            } else if (Object.keys(rawInfo)[i] === "Penciller") {
+                penciller = rawInfo[Object.keys(rawInfo)[i]]
+            } else if (Object.keys(rawInfo)[i] === "Inker") {
+                inker = rawInfo[Object.keys(rawInfo)[i]]
+            } else if (Object.keys(rawInfo)[i] === "Colorist") {
+                colorist = rawInfo[Object.keys(rawInfo)[i]]
+            } else if (Object.keys(rawInfo)[i] === "Letterer") {
+                letterer = rawInfo[Object.keys(rawInfo)[i]]
+            } else if (Object.keys(rawInfo)[i] === "CoverArtist" || Object.keys(rawInfo)[i] === "Cover") {
+                coverArtist = rawInfo[Object.keys(rawInfo)[i]]
+            } else if (Object.keys(rawInfo)[i] === "Editor") {
+                editor = rawInfo[Object.keys(rawInfo)[i]]
+            } else if (Object.keys(rawInfo)[i] === "Publisher") {
+                publisher = rawInfo[Object.keys(rawInfo)[i]]
+            } else if (Object.keys(rawInfo)[i] === "Imprint") {
+                imprint = rawInfo[Object.keys(rawInfo)[i]]
+            } else if (Object.keys(rawInfo)[i] === "Genre") {
+                genre = rawInfo[Object.keys(rawInfo)[i]]
+            } else if (Object.keys(rawInfo)[i] === "Format") {
+                format = rawInfo[Object.keys(rawInfo)[i]]
+            } else if (Object.keys(rawInfo)[i] === "Characters") {
+                characters = rawInfo[Object.keys(rawInfo)[i]]
+            } 
+            // else if (Object.keys(rawInfo)[i] === "Pages") {
+            //     var imageNo = 0;
+            //     var page = [pageCount];
+                pages = rawInfo[Object.keys(rawInfo)[i]];
+            //     for (let i=0; i<files.length; i++) {
+            //         // checks if the current entry is an .jpg file
+            //         if (files[i].split(".").pop().toLowerCase() == "jpg" || files[i].split(".").pop().toLowerCase() == "jpeg") {
+            //             var type = null;
+            //             var source = location.split(".").pop() + "/" + files[i];
+            //             if (pages[Object.keys(pages)[0]][imageNo].type) {
+            //                 type = Pages[Object.keys(Pages)[0]][imageNo].type;
+            //             }
+            //             var dimensions = sizeOf(location+"/"+files[i])
+            //             page[imageNo] = {
+            //                 image: imageNo,
+            //                 type: type,
+            //                 imageWidth: dimensions.width,
+            //                 imageHeight: dimensions.height,
+            //                 source: source
+            //             }
+            //             imageNo++;
+            //         }
+            //     }
+            //     pages = page;
+            // }
         }
     }
+
+    var imageNo = 0;
+        var page = [pageCount];
+        // pages = rawInfo[Object.keys(rawInfo)[i]];
+        for (let i=0; i<files.length; i++) {
+            // checks if the current entry is an .jpg file
+            if (files[i].split(".").pop().toLowerCase() == "jpg" || files[i].split(".").pop().toLowerCase() == "jpeg") {
+                var type = null;
+                var source = location.split(".").pop() + "/" + files[i];
+                // if (pages[Object.keys(pages)[0]][imageNo].type) {
+                //     type = Pages[Object.keys(Pages)[0]][imageNo].type;
+                // }
+                var dimensions = sizeOf(location+"/"+files[i])
+                page[imageNo] = {
+                    image: imageNo,
+                    type: type,
+                    imageWidth: dimensions.width,
+                    imageHeight: dimensions.height,
+                    source: source
+                }
+                imageNo++;
+            }
+        }
+        pages = page;
     
     comicInfo = {
         title: title,
