@@ -263,4 +263,89 @@ router.get('/comics', async function(req, res) {
 
 });
 
+/**
+ * @openapi
+ * /files/downloads:
+ *   get:
+ *     description: 'Retrieve comic searchable possibilities'
+ *     produces:
+ *       application/json
+ *     responses:
+ *       200:
+ *         description: Returns success message confirming comic retrieved
+ *       401:
+ *         description: Notifies that passed token has expired
+ */
+ router.get('/downloads', async function(req, res) {
+  var token = req.query.token
+  try {
+    var decoded = await jwt.verify(token, "SECRET_KEY", {complete: true});
+  } catch (error) {
+      console.log(error)
+      return res.status(401).json({"message": "expired"})
+  }
+  if(bcrypt.compareSync(decoded.payload.user_id, decoded.payload.hash)) {
+    var src = "." + req.query.file;
+    var file = src.split("/").pop();
+    var build = file.split("-");
+    var dest = "/downloads/";
+    for (let i=0;i<build.length-1;i++) {
+      if (i<build.length-2) {
+        dest = dest + build[i] + "-";
+      } else {
+        dest = dest + build[i] + ".cbz"
+      }
+    }
+    console.log(src)
+    console.log(dest)
+    fs.copyFile(src, "." + dest, (err) => {
+      if (err) {
+        console.log(err)
+        return res.status(500)
+      } else {
+        res.status(200).json({"file": dest})
+      }
+    })
+  } else {
+    return res.status(401).json({"message": "expired"})
+  }
+
+});
+
+/**
+ * @openapi
+ * /files/downloads:
+ *   delete:
+ *     description: 'Retrieve comic searchable possibilities'
+ *     produces:
+ *       application/json
+ *     responses:
+ *       200:
+ *         description: Returns success message confirming comic retrieved
+ *       401:
+ *         description: Notifies that passed token has expired
+ */
+ router.delete('/downloads', async function(req, res) {
+  console.log("deletion request")
+  var token = req.query.token
+  try {
+    var decoded = await jwt.verify(token, "SECRET_KEY", {complete: true});
+  } catch (error) {
+      console.log(error)
+      return res.status(401).json({"message": "expired"})
+  }
+  if(bcrypt.compareSync(decoded.payload.user_id, decoded.payload.hash)) {
+    console.log(req.query.file);
+    try {
+      fs.unlinkSync("./" + req.query.file)
+      res.status(200);
+    } catch (err) {
+      console.log(err)
+    }
+  } else {
+    return res.status(401).json({"message": "expired"})
+  }
+
+});
+
 module.exports = router;

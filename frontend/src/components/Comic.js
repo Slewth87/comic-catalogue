@@ -1,9 +1,12 @@
 import { Card, Col, Row, Container, ButtonGroup, Button } from 'react-bootstrap';
+import fileDownload from 'js-file-download';
+import axios from 'axios';
 
 function Comic(props) {
     console.log("alanis")
     console.log(props)
     const comic = props.comic;
+    const token = localStorage.getItem('token');
     const temp = JSON.stringify(comic)
     var month;
 
@@ -33,10 +36,25 @@ function Comic(props) {
         month = "December";
     }
 
+    async function download() {
+        var download = await axios.get("http://localhost:2814/files/downloads", {params: { token: token, file: comic.comic_file }});
+        var file = download.data.file.split("/").pop();
+        await axios.get("http://localhost:2814" + download.data.file, {responseType: 'blob', onDownloadProgress: (loading) => {
+            var completion = Math.round((loading.loaded * 100) / loading.total)
+            if (completion === 100) {
+                console.log("tada")
+                axios.delete("http://localhost:2814/files/downloads", {params: { token: token, file: download.data.file }});
+            }
+        }
+        }).then(res => {
+            fileDownload(res.data, file);
+        })
+    }
+
     if (comic) {
         return (
             <Card className="comic-view bg-dark text-light">
-                {/* {temp} */}
+                {temp}
                 <Container>
                     <Row>
                         <Col md="auto">
@@ -47,7 +65,7 @@ function Comic(props) {
                                 <ButtonGroup vertical className="comic-buttons">
                                     <Button variant="success">View</Button>
                                     <Button variant="outline-success">Edit</Button>
-                                    <Button variant="success">Download</Button>
+                                    <Button variant="success" onClick={download}>Download</Button>
                                     <Button variant="danger" >Delete</Button>
                                 </ButtonGroup>
                             </Row>
