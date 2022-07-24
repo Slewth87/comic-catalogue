@@ -14,6 +14,14 @@ function Uploader() {
         console.log(e.target.files[0])
     }
 
+    async function closer() {
+        setModalShow(false);
+        const token = localStorage.getItem('token');
+        console.log("appeared");
+        console.log(file.name);
+        console.log(comicInfo.location);
+        axios.get("http://localhost:2814/files/cleaner", {params:{token: token, upload: comicInfo.location, tmp: file.name}})
+    }
     async function handleUpload(e) {
         e.preventDefault();
         console.log("howdy")
@@ -57,7 +65,7 @@ function Uploader() {
             <Modals
             show={modalShow}
             comicinfo={comicInfo}
-            onHide={() => setModalShow(false)}
+            onHide={() => closer()}
             />
             <form>
                 <h2>Upload file</h2>

@@ -71,19 +71,6 @@ async function upload(file) {
     return response;
 }
 
-// async function extractRarArchive(file, destination) {
-//     try {
-//       const extractor = await createExtractorFromFile({
-//         filepath: file,
-//         targetPath: destination
-//       });
-  
-//       [...extractor.extract().files];
-//     } catch (err) {
-//       console.log(err);
-//     }
-//   }
-
 // extracting the data from the xml file
 async function XMLReader(extract) {
     // need to find the xml file first, checks top level and subdirectory if zip format uses one
@@ -237,31 +224,7 @@ function normaliser(rawInfo, location) {
             } else if (Object.keys(rawInfo)[i] === "Characters") {
                 characters = rawInfo[Object.keys(rawInfo)[i]]
             } 
-            // else if (Object.keys(rawInfo)[i] === "Pages") {
-            //     var imageNo = 0;
-            //     var page = [pageCount];
-                pages = rawInfo[Object.keys(rawInfo)[i]];
-            //     for (let i=0; i<files.length; i++) {
-            //         // checks if the current entry is an .jpg file
-            //         if (files[i].split(".").pop().toLowerCase() == "jpg" || files[i].split(".").pop().toLowerCase() == "jpeg") {
-            //             var type = null;
-            //             var source = location.split(".").pop() + "/" + files[i];
-            //             if (pages[Object.keys(pages)[0]][imageNo].type) {
-            //                 type = Pages[Object.keys(Pages)[0]][imageNo].type;
-            //             }
-            //             var dimensions = sizeOf(location+"/"+files[i])
-            //             page[imageNo] = {
-            //                 image: imageNo,
-            //                 type: type,
-            //                 imageWidth: dimensions.width,
-            //                 imageHeight: dimensions.height,
-            //                 source: source
-            //             }
-            //             imageNo++;
-            //         }
-            //     }
-            //     pages = page;
-            // }
+            pages = rawInfo[Object.keys(rawInfo)[i]];
         }
     }
 
@@ -273,9 +236,6 @@ function normaliser(rawInfo, location) {
             if (files[i].split(".").pop().toLowerCase() == "jpg" || files[i].split(".").pop().toLowerCase() == "jpeg") {
                 var type = null;
                 var source = location.split(".").pop() + "/" + files[i];
-                // if (pages[Object.keys(pages)[0]][imageNo].type) {
-                //     type = Pages[Object.keys(Pages)[0]][imageNo].type;
-                // }
                 var dimensions = sizeOf(location+"/"+files[i])
                 page[imageNo] = {
                     image: imageNo,
@@ -472,6 +432,21 @@ function zipIt(data, user_id) {
     return locator;
 }
 
+function cleaner(tmp, upload) {
+    fs.rmdir(tmp, { recursive: true, force: true }, (err) => {
+        if (err) {
+            return console.log("error deleting raw", err)
+        } else {
+            console.log("Deleted raw")
+        }
+    })
+    fs.unlink("./uploads/" + tmp.split("/").pop() + "." + upload.split(".").pop(), (err) => {
+        if (err) {
+            console.log(err);
+        }
+    })
+}
+
 function clearOut(location) {
     var splitFolder = (location).split("/");
     console.log("unzipped: ./tmp/" + splitFolder[2])
@@ -603,4 +578,4 @@ function storeIt(data, location, user_id) {
     }
 }
 
-module.exports = { upload, save }
+module.exports = { upload, save, cleaner }

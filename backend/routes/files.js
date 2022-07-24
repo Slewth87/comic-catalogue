@@ -345,7 +345,40 @@ router.get('/comics', async function(req, res) {
   } else {
     return res.status(401).json({"message": "expired"})
   }
+});
 
+/**
+ * @openapi
+ * /files/cleaner:
+ *   delete:
+ *     description: 'Retrieve comic searchable possibilities'
+ *     produces:
+ *       application/json
+ *     responses:
+ *       200:
+ *         description: Returns success message confirming comic retrieved
+ *       401:
+ *         description: Notifies that passed token has expired
+ */
+ router.get('/cleaner', async function(req, res) {
+  console.log("deletion request")
+  var token = req.query.token
+  try {
+    var decoded = await jwt.verify(token, "SECRET_KEY", {complete: true});
+  } catch (error) {
+      console.log(error)
+      return res.status(401).json({"message": "expired"})
+  }
+  if(bcrypt.compareSync(decoded.payload.user_id, decoded.payload.hash)) {
+    try {
+      uploader.cleaner(req.query.tmp, req.query.upload)
+      res.status(200);
+    } catch (err) {
+      console.log(err)
+    }
+  } else {
+    return res.status(401).json({"message": "expired"})
+  }
 });
 
 module.exports = router;
