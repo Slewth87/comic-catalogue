@@ -4,4 +4,10 @@
 /frontend/node_modules
 /backend/database.db
 /backend/comics/*
+!/backend/comics/.gitkeep
 /backend/thumbnails/*
+!/backend/thumbnails/.gitkeep
+/backend/tmp/*
+!/backend/tmp/.gitkeep
+/backend/uploads/*
+!/backend/uploads/.gitkeep
