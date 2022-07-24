@@ -286,7 +286,6 @@ async function save(data, user_id) {
     await buildXml(data);
     var location = await zipIt(data, user_id);
     await storeIt(data, location, user_id);
-    clearOut(data.location);
 }
 
 function buildXml(data) {
@@ -433,36 +432,26 @@ function zipIt(data, user_id) {
 }
 
 function cleaner(tmp, upload) {
-    fs.rmdir(tmp, { recursive: true, force: true }, (err) => {
+    var extension;
+    fs.rmdir("./tmp/" + tmp.split("/")[2], { recursive: true, force: true }, (err) => {
         if (err) {
             return console.log("error deleting raw", err)
         } else {
             console.log("Deleted raw")
         }
     })
-    fs.unlink("./uploads/" + tmp.split("/").pop() + "." + upload.split(".").pop(), (err) => {
+    if (upload.split(".").pop() === "cbz") {
+        extension = "zip"
+    } else if (upload.split(".").pop() === "cbr") {
+        extension = "rar"
+    } 
+    console.log("tmp: " + tmp)
+    console.log("upload: " + upload)
+    fs.unlink("./uploads/" + tmp.split("/")[2] + "." + extension, (err) => {
         if (err) {
-            console.log(err);
-        }
-    })
-}
-
-function clearOut(location) {
-    var splitFolder = (location).split("/");
-    console.log("unzipped: ./tmp/" + splitFolder[2])
-    fs.rmdir("./tmp/" + splitFolder[2], { recursive: true, force: true }, (err) => {
-        if (err) {
-            return console.log("error deleting raw", err)
+            console.log("error deleting compressed", err);
         } else {
-            console.log("Deleted raw")
-        }
-    })
-    console.log("Zipped: ./uploads/" + splitFolder[2] + ".zip")
-    fs.unlink("./uploads/" + splitFolder[2] + ".zip", (err) => {
-        if (err) {
-            console.log("Error deleting zip")
-        } else {
-            console.log("Deleted zip")
+            console.log("compressed cleared")
         }
     })
 }

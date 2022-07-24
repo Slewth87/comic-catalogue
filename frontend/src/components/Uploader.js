@@ -20,7 +20,7 @@ function Uploader() {
         console.log("appeared");
         console.log(file.name);
         console.log(comicInfo.location);
-        axios.get("http://localhost:2814/files/cleaner", {params:{token: token, upload: comicInfo.location, tmp: file.name}})
+        axios.get("http://localhost:2814/files/cleaner", {params:{token: token, tmp: comicInfo.location, upload: file.name}})
     }
     async function handleUpload(e) {
         e.preventDefault();
