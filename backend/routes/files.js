@@ -204,8 +204,44 @@ router.get('/comics', async function(req, res) {
   } else {
     return res.status(401).json({"message": "expired"})
   }
-
 });
+
+/**
+ * @openapi
+ * /files/comics:
+ *   get:
+ *     description: 'Retrieve comics'
+ *     produces:
+ *       application/json
+ *     responses:
+ *       200:
+ *         description: Returns success message confirming comic retrieved
+ *       401:
+ *         description: Notifies that passed token has expired
+ */
+ router.delete('/comics', async function(req, res) {
+  var token = req.query.token
+  try {
+    var decoded = await jwt.verify(token, "SECRET_KEY", {complete: true});
+  } catch (error) {
+      console.log(error)
+      return res.status(401).json({"message": "expired"})
+  }
+  if(bcrypt.compareSync(decoded.payload.user_id, decoded.payload.hash)) {
+    try {
+      var comic = JSON.parse(req.query.comic)
+      var db = new sqlite('database.db');
+      var result = await db.prepare('DELETE FROM comics WHERE id = ' + comic.id).run()
+      console.log(result)
+      fs.unlinkSync("." + comic.file)
+      fs.unlinkSync("." + comic.thumbnail)
+      return res.status(200).send(result);
+    } catch (err) {
+      console.log(err);
+      return res.status(500);
+    }
+  }
+ });
 
 /**
  * @openapi
