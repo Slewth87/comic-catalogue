@@ -58,7 +58,7 @@ function Uploader() {
                 setMessage("An unknown error on upload")
             }
         }
-        };
+    };
 
     return (
         <div>
