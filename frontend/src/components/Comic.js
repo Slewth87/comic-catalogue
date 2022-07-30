@@ -3,9 +3,12 @@ import fileDownload from 'js-file-download';
 import { useState } from 'react';
 import axios from 'axios';
 import Deletion from './Deletion';
+import Modals from './Modals.js'
 
 function Comic(props) {
-    const [modalShow, setModalShow] = useState(false);
+    const [deleteShow, setDeleteShow] = useState(false);
+    const [editShow, setEditShow] = useState(false);
+    const [file, setFile] = useState();
     console.log("alanis")
     console.log(props)
     const comic = props.comic;
@@ -56,16 +59,47 @@ function Comic(props) {
 
     function deleter(e) {
         // e.preventDefault();
-        setModalShow(true);
+        setDeleteShow(true);
+    }
+
+    async function closer() {
+        setDeleteShow(false);
+        setEditShow(false);
+        const token = localStorage.getItem('token');
+        var original = comic.comic_file.split("/").pop()
+        var temp = "./tmp/" + original.split(".")[0] + "-" + comic.user_id
+        var moved = "./uploads/" + original.split(".")[0] + ".zip"
+        console.log("upload");
+        console.log(moved)
+        console.log("tmp")
+        console.log(temp)
+        console.log(comic.comic_file);
+        axios.get("http://localhost:2814/files/cleaner", {params:{token: token, tmp: temp, upload: moved, source: "edit"}})
+    }
+
+    async function prep() {
+        const token = localStorage.getItem('token');
+        var data = await axios.get("http://localhost:2814/files/prep", {params:{token: token, comic: comic}})
+        await setFile(data.data.comic)
+        console.log("prep")
+        console.log(data.data.comic)
+        setEditShow(true);
     }
 
     if (comic) {
         return (
             <div>
                 <Deletion
-                show={modalShow}
+                show={deleteShow}
                 comic={comic}
-                onHide={() => setModalShow(false)}
+                onHide={() => setDeleteShow(false)}
+                />
+                <Modals
+                show={editShow}
+                comicInfo={file}
+                id={comic.id}
+                source="edit"
+                onHide={() => closer()}
                 />
                 <Card className="comic-view bg-dark text-light">
                     {/* {temp} */}
@@ -78,7 +112,7 @@ function Comic(props) {
                                 <Row>
                                     <ButtonGroup vertical className="comic-buttons">
                                         {/* <Button variant="success">View</Button> */}
-                                        <Button variant="outline-success">Edit</Button>
+                                        <Button variant="outline-success" onClick={prep}>Edit</Button>
                                         <Button variant="success" onClick={download}>Download</Button>
                                         <Button variant="danger" onClick={deleter}>Delete</Button>
                                     </ButtonGroup>

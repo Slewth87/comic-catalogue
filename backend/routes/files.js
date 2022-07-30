@@ -37,7 +37,7 @@ router.use(morgan('dev'));
  *       500:
  *         description: Unkown error returned
  */
-router.post('/upload', async function (req, res, next) {
+router.post('/upload', async function (req, res) {
   var token = req.query.token;
   var message = "Unknown error";
   var status = 500;
@@ -243,6 +243,60 @@ router.get('/comics', async function(req, res) {
   }
  });
 
+ /**
+ * @openapi
+ * /files/comics:
+ *   get:
+ *     description: 'Retrieve comics'
+ *     produces:
+ *       application/json
+ *     responses:
+ *       200:
+ *         description: Returns success message confirming comic retrieved
+ *       401:
+ *         description: Notifies that passed token has expired
+ */
+  router.get('/prep', async function(req, res) {
+    var token = req.query.token
+    var response = {
+      status: 400,
+      message: "failed"
+    }
+    try {
+      var decoded = await jwt.verify(token, "SECRET_KEY", {complete: true});
+    } catch (error) {
+        console.log(error)
+        return res.status(401).json({"message": "expired"})
+    }
+    if(bcrypt.compareSync(decoded.payload.user_id, decoded.payload.hash)) {
+      try {
+        var comic = JSON.parse(req.query.comic)
+        var start = "." + comic.comic_file
+        // let location = ".." + comic.comic_file + ".bin"
+        let size = fs.statSync(start).size
+        let location = "./uploads/" + comic.series + "-v" + comic.volume + "-" + comic.issue_number + "-" + decoded.payload.user_id
+        await fs.rename(start, location + ".zip", function (err) {
+          if (err) {
+            console.log(err)
+            return res.status(500).send();
+          }
+        })
+        let filedata = {
+          name: location.split("/").pop() + ".cbz",
+          location: location + ".zip",
+          size: size,
+          user: decoded.payload.user_id
+        }
+        response = await uploader.upload(filedata);
+        // console.log(response)
+        return res.status(response.status).send(response.message);
+      } catch (err) {
+        console.log(err);
+        return res.status(400);
+      }
+    }
+   });
+
 /**
  * @openapi
  * /files/comicsfields:
@@ -407,7 +461,7 @@ router.get('/comics', async function(req, res) {
   }
   if(bcrypt.compareSync(decoded.payload.user_id, decoded.payload.hash)) {
     try {
-      uploader.cleaner(req.query.tmp, req.query.upload)
+      uploader.cleaner(req.query.tmp, req.query.upload, req.query.source)
       res.status(200);
     } catch (err) {
       console.log(err)
