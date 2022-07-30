@@ -576,7 +576,7 @@ function storeIt(data, location, user_id) {
             db.prepare('INSERT INTO comics (user_id, title, series, issue_number, series_count, volume, alternate_series, summary, notes, publication, writer, penciller, inker, colorist, letterer, cover_artist, editor, publisher, imprint, genre, comic_format, characters, thumbnail, comic_file) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)').run(user_id, title, series, issue_number, series_count, volume, alternate_series, summary, notes, publication, writer, penciller, inker, colorist, letterer, cover_artist, editor, publisher, imprint, genre, comic_format, characters, thumbnail, comic_file);
         } else if (data.source === "edit") {
             db.prepare('UPDATE comics SET user_id = ?, title = ?, series = ?, issue_number = ?, series_count = ?, volume = ?, alternate_series = ?, summary = ?, notes = ?, publication = ?, writer = ?, penciller = ?, inker = ?, colorist = ?, letterer = ?, cover_artist = ?, editor = ?, publisher = ?, imprint = ?, genre = ?, comic_format = ?, characters = ?, thumbnail = ?, comic_file = ? WHERE id = ?').run(user_id, title, series, issue_number, series_count, volume, alternate_series, summary, notes, publication, writer, penciller, inker, colorist, letterer, cover_artist, editor, publisher, imprint, genre, comic_format, characters, thumbnail, comic_file, data.id);
-        } else 
+        } 
         var upload = db.prepare('SELECT * FROM comics WHERE user_id = (?)').all(user_id)
         console.log("Database updated")
         console.log(upload)
