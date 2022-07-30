@@ -9,6 +9,7 @@ const sqlite = require('better-sqlite3');
 async function upload(file) {
     // prep folder location and name data
     console.log("first hit of uploader")
+    console.log(file)
     var folderName = file.name.slice(0, file.name.length -4) + "-" + file.user
     // initialise variables for use in loop
     var loop = 0;
@@ -431,8 +432,11 @@ function zipIt(data, user_id) {
     return locator;
 }
 
-function cleaner(tmp, upload) {
+async function cleaner(tmp, upload, source) {
     var extension;
+    console.log("cleaner")
+    console.log(tmp)
+    console.log(upload)
     fs.rmdir("./tmp/" + tmp.split("/")[2], { recursive: true, force: true }, (err) => {
         if (err) {
             return console.log("error deleting raw", err)
@@ -440,20 +444,30 @@ function cleaner(tmp, upload) {
             console.log("Deleted raw")
         }
     })
-    if (upload.split(".").pop() === "cbz") {
-        extension = "zip"
-    } else if (upload.split(".").pop() === "cbr") {
-        extension = "rar"
-    } 
-    console.log("tmp: " + tmp)
-    console.log("upload: " + upload)
-    fs.unlink("./uploads/" + tmp.split("/")[2] + "." + extension, (err) => {
+    if (source === "upload") {
+        if (upload.split(".").pop() === "cbz") {
+            extension = "zip"
+        } else if (upload.split(".").pop() === "cbr") {
+            extension = "rar"
+        } 
+        console.log("tmp: " + tmp)
+        console.log("upload: " + upload)
+        fs.unlink("./uploads/" + tmp.split("/")[2] + "." + extension, (err) => {
+            if (err) {
+                console.log("error deleting compressed", err);
+            } else {
+                console.log("compressed cleared")
+            }
+        })
+    } else if (source === "edit") {
+      let location = "./comics/" + upload.split("/").pop().split(".")[0] + ".cbz"
+      await fs.rename(upload, location, function (err) {
         if (err) {
-            console.log("error deleting compressed", err);
-        } else {
-            console.log("compressed cleared")
+          console.log(err)
+          return res.status(500).send();
         }
-    })
+      })
+    }
 }
 
 function storeIt(data, location, user_id) {
@@ -558,7 +572,11 @@ function storeIt(data, location, user_id) {
 
     try {
         var db = new sqlite('database.db');
-        db.prepare('INSERT INTO comics (user_id, title, series, issue_number, series_count, volume, alternate_series, summary, notes, publication, writer, penciller, inker, colorist, letterer, cover_artist, editor, publisher, imprint, genre, comic_format, characters, thumbnail, comic_file) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)').run(user_id, title, series, issue_number, series_count, volume, alternate_series, summary, notes, publication, writer, penciller, inker, colorist, letterer, cover_artist, editor, publisher, imprint, genre, comic_format, characters, thumbnail, comic_file);
+        if (data.source === "upload") {
+            db.prepare('INSERT INTO comics (user_id, title, series, issue_number, series_count, volume, alternate_series, summary, notes, publication, writer, penciller, inker, colorist, letterer, cover_artist, editor, publisher, imprint, genre, comic_format, characters, thumbnail, comic_file) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)').run(user_id, title, series, issue_number, series_count, volume, alternate_series, summary, notes, publication, writer, penciller, inker, colorist, letterer, cover_artist, editor, publisher, imprint, genre, comic_format, characters, thumbnail, comic_file);
+        } else if (data.source === "edit") {
+            db.prepare('UPDATE comics SET user_id = ?, title = ?, series = ?, issue_number = ?, series_count = ?, volume = ?, alternate_series = ?, summary = ?, notes = ?, publication = ?, writer = ?, penciller = ?, inker = ?, colorist = ?, letterer = ?, cover_artist = ?, editor = ?, publisher = ?, imprint = ?, genre = ?, comic_format = ?, characters = ?, thumbnail = ?, comic_file = ? WHERE id = ?').run(user_id, title, series, issue_number, series_count, volume, alternate_series, summary, notes, publication, writer, penciller, inker, colorist, letterer, cover_artist, editor, publisher, imprint, genre, comic_format, characters, thumbnail, comic_file, data.id);
+        } else 
         var upload = db.prepare('SELECT * FROM comics WHERE user_id = (?)').all(user_id)
         console.log("Database updated")
         console.log(upload)

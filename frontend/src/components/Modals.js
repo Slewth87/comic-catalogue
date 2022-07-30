@@ -5,8 +5,10 @@ import { Carousel } from 'react-bootstrap';
 import { useState } from 'react'
 
 function Modals(props) {
-  const comicInfo = props.comicinfo;
-  console.log(props.comicinfo);
+  const comicInfo = props.comicInfo;
+  console.log(props.comicInfo);
+  const source = props.source;
+  const id = props.id;
   const [title, setTitle] = useState('');
   const [series, setSeries] = useState('');
   const [number, setNumber] = useState();
@@ -35,7 +37,7 @@ function Modals(props) {
   const [pages, setPages] = useState();
 
   // handles adding a new game to the db
-  async function handleAdd() {
+  async function handleSave() {
     const token = localStorage.getItem('token')
     await axios.post("http://localhost:2814/files/save", {params: {
       title: title,
@@ -64,7 +66,9 @@ function Modals(props) {
       pages: pages,
       location: location,
       thumb: thumb,
-      token: token
+      token: token,
+      source: source,
+      id: id
     }})
     .then(function (response) {
     console.log(response);
@@ -387,7 +391,7 @@ function Modals(props) {
         </Modal.Body>
         <Modal.Footer className="bg-dark">
           <Button variant="outline-success" onClick={props.onHide}>Cancel</Button>
-          <Button variant="success" onClick={handleAdd}>Save</Button>
+          <Button variant="success" onClick={handleSave}>Save</Button>
         </Modal.Footer>
       </Modal>
     )

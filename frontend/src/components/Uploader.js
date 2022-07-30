@@ -20,8 +20,9 @@ function Uploader() {
         console.log("appeared");
         console.log(file.name);
         console.log(comicInfo.location);
-        axios.get("http://localhost:2814/files/cleaner", {params:{token: token, tmp: comicInfo.location, upload: file.name}})
+        axios.get("http://localhost:2814/files/cleaner", {params:{token: token, tmp: comicInfo.location, upload: file.name, source: "upload"}})
     }
+
     async function handleUpload(e) {
         e.preventDefault();
         console.log("howdy")
@@ -64,7 +65,8 @@ function Uploader() {
         <div>
             <Modals
             show={modalShow}
-            comicinfo={comicInfo}
+            comicInfo={comicInfo}
+            source="upload"
             onHide={() => closer()}
             />
             <form>
