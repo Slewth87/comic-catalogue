@@ -433,7 +433,7 @@ function zipIt(data, user_id) {
 }
 
 async function cleaner(tmp, upload, source) {
-    var extension;
+    var extension = "zip";
     console.log("cleaner")
     console.log(tmp)
     console.log(upload)
@@ -449,16 +449,55 @@ async function cleaner(tmp, upload, source) {
             extension = "zip"
         } else if (upload.split(".").pop() === "cbr") {
             extension = "rar"
-        } 
+        }
         console.log("tmp: " + tmp)
         console.log("upload: " + upload)
-        fs.unlink("./uploads/" + tmp.split("/")[2] + "." + extension, (err) => {
+        var file = upload.split(".")
+        var ind;
+        if (file[0] === "") {
+            ind = 1;
+        } else {
+            ind = 0;
+        }
+        console.log(file)
+        fs.unlink("." + file[ind] + "." + extension, (err) => {
             if (err) {
                 console.log("error deleting compressed", err);
             } else {
                 console.log("compressed cleared")
             }
         })
+
+      var db = new sqlite('database.db');
+      var thumbBase = await db.prepare('SELECT thumbnail FROM comics WHERE user_id = (?)').all(tmp.split("-").pop())
+      var thumbs = fs.readdirSync("./thumbnails/")
+      var baseArray = [];
+      for (let i=0;i<thumbBase.length;i++) {
+        baseArray[i] = JSON.stringify(thumbBase[i].thumbnail).split("/").pop()
+      }
+      console.log("thumbBase")
+      console.log(baseArray)
+      console.log("thumbs")
+      console.log(thumbs)
+      if (thumbs.length > baseArray.length) {
+        var clearout = [];
+        var spot = 0;
+        for (let i=0;i<thumbs.length;i++) {
+            if (!baseArray.includes(thumbs[i]+'"')) {
+                clearout[spot] = thumbs[i]
+                spot++;
+            }
+        }
+        console.log("clearout")
+        console.log(clearout)
+        for (let i=0;i<clearout.length;i++) {
+            fs.unlink("./thumbnails/" + clearout[i], (err) => {
+                if (err) {
+                    console.log("error clearing thumbnails", err);
+                }
+            })
+        }
+      }
     } else if (source === "edit") {
       let location = "./comics/" + upload.split("/").pop().split(".")[0] + ".cbz"
       await fs.rename(upload, location, function (err) {
