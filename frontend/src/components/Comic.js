@@ -62,7 +62,7 @@ function Comic(props) {
         setDeleteShow(true);
     }
 
-    async function closer() {
+    async function closer(button) {
         setDeleteShow(false);
         setEditShow(false);
         const token = localStorage.getItem('token');
@@ -74,7 +74,13 @@ function Comic(props) {
         console.log("tmp")
         console.log(temp)
         console.log(comic.comic_file);
-        axios.get("http://localhost:2814/files/cleaner", {params:{token: token, tmp: temp, upload: moved, source: "edit"}})
+        if (button === "save") {
+            axios.get("http://localhost:2814/files/cleaner", {params:{token: token, tmp: temp, upload: moved, source: "upload"}})
+            console.log("Saved")
+        } else {
+            axios.get("http://localhost:2814/files/cleaner", {params:{token: token, tmp: temp, upload: moved, source: "edit"}})
+            console.log("Cancelled")
+        }
     }
 
     async function prep() {
@@ -99,7 +105,7 @@ function Comic(props) {
                 comicInfo={file}
                 id={comic.id}
                 source="edit"
-                onHide={() => closer()}
+                onHide={(button) => closer(button)}
                 />
                 <Card className="comic-view bg-dark text-light">
                     {/* {temp} */}

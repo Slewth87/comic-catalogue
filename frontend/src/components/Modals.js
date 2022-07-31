@@ -81,7 +81,7 @@ function Modals(props) {
     alert("Failed to add comic. Try again later.")
     })
     // Close the modal
-    props.onHide();
+    props.onHide("save");
   }
 
   function addTitle(e) {
