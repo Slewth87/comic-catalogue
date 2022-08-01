@@ -1,3 +1,5 @@
+// View of an individual comic
+
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams, Link } from 'react-router-dom';
@@ -7,6 +9,7 @@ function ComicView() {
     const comicId = useParams().id;
     const [comic, setComic] = useState();
 
+    // Retrieves the user's comic for display
     useEffect(() => {
         async function fetch() {
             const token = localStorage.getItem('token')
@@ -17,8 +20,6 @@ function ComicView() {
     }, []);
 
     if (comic) {
-        console.log("borb")
-        console.log(comic)
         return (
             <div className="display-comic">
                 <Link to="/">← Back</Link>

@@ -1,3 +1,5 @@
+// Creates a display for cycling through the various page images in a comic
+
 function ImageFlipper(props) {
     var file = "http://localhost:2814"+props.images[props.number.image].source
     return (

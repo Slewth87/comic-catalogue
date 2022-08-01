@@ -8,10 +8,6 @@ function Formatter(props) {
   } else {
     delimiter = ", "
   }
-  // for (let i=0;i<field.length - 1;i++) {
-  //   field[i] = field[i] + delimiter
-  //   console.log(i + ": " + field[i])
-  // }
   var newStr = JSON.stringify({"jenny": "Gump"});
   return newStr;
 }

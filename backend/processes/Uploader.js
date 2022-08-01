@@ -444,7 +444,7 @@ async function cleaner(tmp, upload, source) {
             console.log("Deleted raw")
         }
     })
-    if (source === "upload") {
+    if (source === "save") {
         if (upload.split(".").pop() === "cbz") {
             extension = "zip"
         } else if (upload.split(".").pop() === "cbr") {
@@ -460,7 +460,13 @@ async function cleaner(tmp, upload, source) {
             ind = 0;
         }
         console.log(file)
-        fs.unlink("." + file[ind] + "." + extension, (err) => {
+        var wipee;
+        if (file[ind].includes("uploads")) {
+            wipee = file[ind]
+        } else {
+            wipee = "/uploads/" + file[ind] + "-" + tmp.split("-").pop()
+        }
+        fs.unlink("." + wipee + "." + extension, (err) => {
             if (err) {
                 console.log("error deleting compressed", err);
             } else {
@@ -498,7 +504,7 @@ async function cleaner(tmp, upload, source) {
             })
         }
       }
-    } else if (source === "edit") {
+    } else if (source === "cancel") {
       let location = "./comics/" + upload.split("/").pop().split(".")[0] + ".cbz"
       await fs.rename(upload, location, function (err) {
         if (err) {

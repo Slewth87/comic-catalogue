@@ -1,3 +1,5 @@
+// Creates the modal for entering comic details on editing or uploading a file 
+
 import axios from 'axios';
 import { Modal, Button, Form, Col, Row } from "react-bootstrap";
 import ImageFlipper from './ImageFlipper.js';
@@ -6,9 +8,12 @@ import { useState } from 'react'
 
 function Modals(props) {
   const comicInfo = props.comicInfo;
-  console.log(props.comicInfo);
+  // console.log(props.comicInfo);
+  // To define whether this modal is for a newly uploaded comic, or editing an existing one
   const source = props.source;
+  // If editing an existing comic, sets the id to access its details in the SQL database
   const id = props.id;
+  // Allows for the setting of the various comic info fields
   const [title, setTitle] = useState('');
   const [series, setSeries] = useState('');
   const [number, setNumber] = useState();
@@ -83,6 +88,8 @@ function Modals(props) {
     // Close the modal
     props.onHide("save");
   }
+
+  // Handles the editing of the various fields
 
   function addTitle(e) {
     e.preventDefault();
@@ -193,6 +200,7 @@ function Modals(props) {
     setThumb(e.target.value)
   }
 
+  // Loads up the initial values
   function loader() {
     if (thumb !== comicInfo.pages[0].source) {
       setTitle(comicInfo.title);
@@ -221,13 +229,13 @@ function Modals(props) {
       setThumb(comicInfo.pages[0].source);
       setLocation(comicInfo.location)
       setPages(comicInfo.pages)
-      console.log("Ran")
-    } else {
-      console.log("Didn't run")
+    //   console.log("Ran")
+    // } else {
+    //   console.log("Didn't run")
     }
   }
 
-  // Modal to confirm the addition of a new game to the library
+  // Modal to confirm the addition of a new game to the library, or editing of an existing one
   if (comicInfo) {
     return (
       <Modal onLoad={loader}

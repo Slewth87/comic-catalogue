@@ -1,3 +1,5 @@
+// Handles registration of a new user
+
 import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import axios from 'axios';
@@ -24,6 +26,7 @@ function Register(props) {
                 username: username,
                 password: password
             });
+            // Automatically logs user in on successful registration
             data = await axios.post("http://localhost:2814/users/login", {
                 username: username,
                 password: password

@@ -1,3 +1,5 @@
+// Creates the display area of comics on the catalogue view
+
 import { Col, Row, Container } from "react-bootstrap";
 import ComicCard from './ComicCard';
 

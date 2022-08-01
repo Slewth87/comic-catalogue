@@ -1,3 +1,5 @@
+// Page for uploading new comics
+
 import { Navigate } from 'react-router-dom';
 import Uploader from '../components/Uploader';
 
