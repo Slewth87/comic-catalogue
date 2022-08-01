@@ -346,7 +346,7 @@ function buildXml(data) {
         json = json + " \"Publisher\": \"" + data.publisher + "\","
     }
     if (data.imprint) {
-        json = json + " \"imprint\": \"" + data.imprint + "\","
+        json = json + " \"Imprint\": \"" + data.imprint + "\","
     }
     if (data.genre) {
         json = json + " \"Genre\": \"" + data.genre + "\","
