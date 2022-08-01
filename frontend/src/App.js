@@ -14,6 +14,7 @@ function App() {
 
   const [loggedIn, setLoggedIn] = useState(false);
 
+  // Checks and records the current logged in state.
   useEffect(() => {
     async function fetchData() {
     const token = localStorage.getItem("token")
@@ -38,7 +39,7 @@ function App() {
       <MyNavbar  loggedIn={loggedIn} />
         <div>
           <Switch>
-            <Route exact path="/" element={<Catalogue loggedIn={loggedIn} />} />
+            <Route exact path="/" element={<Catalogue loggedIn={loggedIn}/>} />
             <Route path="/login" element={<Login loggedIn={loggedIn} setLoggedIn={setLoggedIn} />} />
             <Route path="/logout" element={<Logout loggedIn={loggedIn} setLoggedIn={setLoggedIn} />} />
             <Route path="/register" element={<Register loggedIn={loggedIn} setLoggedIn={setLoggedIn} />} />

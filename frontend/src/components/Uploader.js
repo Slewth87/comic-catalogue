@@ -1,3 +1,5 @@
+// Handles the uploading of new comics
+
 import axios from 'axios';
 import { useState} from 'react';
 import Modals from './Modals.js'
@@ -8,21 +10,24 @@ function Uploader() {
     const [comicInfo, setComicInfo] = useState('');
     const [modalShow, setModalShow] = useState(false);
 
+    // Handles setting a file to upload
     function handleSelection(e) {
         e.preventDefault();
         setFile(e.target.files[0]);
         console.log(e.target.files[0])
     }
 
+    // Removes temp files which were generated during upload for editing before saving
     async function closer() {
         setModalShow(false);
         const token = localStorage.getItem('token');
         console.log("appeared");
         console.log(file.name);
         console.log(comicInfo.location);
-        axios.get("http://localhost:2814/files/cleaner", {params:{token: token, tmp: comicInfo.location, upload: file.name, source: "upload"}})
+        axios.get("http://localhost:2814/files/cleaner", {params:{token: token, tmp: comicInfo.location, upload: file.name, source: "save"}})
     }
 
+    // Passes the selected file to the backend for storage
     async function handleUpload(e) {
         e.preventDefault();
         console.log("howdy")

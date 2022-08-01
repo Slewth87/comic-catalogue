@@ -1,3 +1,5 @@
+// Builds the navbar for the site
+
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import logo64 from '../images/logo64.png';
@@ -5,6 +7,8 @@ import { Navbar, Nav, Container } from "react-bootstrap";
 
 function MyNavbar(props) {
     const [loggedIn, setLoggedIn] = useState(false)
+
+    // Confirms the login state to determine which navbar to display
     useEffect(function() {
         if (props.loggedIn) {
             setLoggedIn(true);
@@ -12,6 +16,7 @@ function MyNavbar(props) {
             setLoggedIn(false);
         }
     }, [props.loggedIn])
+
     if (loggedIn) {
         return (
             <Navbar collapseOnSelect expand="lg" bg="dark" variant="dark">

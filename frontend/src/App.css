@@ -38,3 +38,7 @@
 .buffer {
     margin-top: 0.3rem;
 }
+
+.characterList {
+    display: inline;
+}
