@@ -1,7 +1,7 @@
 // Handles the uploading of new comics
 
 import axios from 'axios';
-import { useState} from 'react';
+import { useState } from 'react';
 import Modals from './Modals.js'
 
 function Uploader() {

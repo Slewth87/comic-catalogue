@@ -42,7 +42,8 @@ function Modals(props) {
   const [pages, setPages] = useState();
 
   // handles adding a new game to the db
-  async function handleSave() {
+  async function handleSave(e) {
+    e.preventDefault();
     const token = localStorage.getItem('token')
     await axios.post("http://localhost:2814/files/save", {params: {
       title: title,
@@ -250,157 +251,157 @@ function Modals(props) {
             Add {comicInfo.series} #{comicInfo.number} to your catalogue
           </Modal.Title>
         </Modal.Header>
-        <Modal.Body className="bg-dark">
-        <Form>
-          <Row>
-            <Form.Group className="md-3 col-3" controlId="formThumb">
-              <Form.Label>Thumbnail</Form.Label>
-              <Carousel interval={null} variant="dark">
-              {
-                  comicInfo.pages.map(function(i, index) {
-                    if (index === 0) {
-                      return (
-                        <Carousel.Item key={index}>
-                          <ImageFlipper images={comicInfo.pages} count={comicInfo.pageCount} number={i}/>
-                          <Carousel.Caption as="form-check">
-                            <label class="form-check-label" for="flexRadioDefault1">
-                              Use
-                            </label>
-                            <input class="form-check-input" type="radio" name="flexRadioDefault" defaultChecked value={i.source} id="flexRadioDefault1" onChange={addThumb}/>
-                          </Carousel.Caption>
-                        </Carousel.Item>
-                      )
-                    } else {
-                      return (
-                        <Carousel.Item key={index}>
-                          <ImageFlipper images={comicInfo.pages} count={comicInfo.pageCount} number={i}/>
-                          <Carousel.Caption as="form-check">
-                            <label class="form-check-label" for="flexRadioDefault1">
-                              Use
-                            </label>
-                            <input class="form-check-input" type="radio" name="flexRadioDefault" value={i.source} id="flexRadioDefault1" onChange={addThumb}/>
-                          </Carousel.Caption>
-                        </Carousel.Item>
-                      )
+        <Form onSubmit={handleSave}>
+          <Modal.Body className="bg-dark">
+            <Row>
+              <Form.Group className="md-3 col-3" controlId="formThumb">
+                <Form.Label>Thumbnail</Form.Label>
+                <Carousel interval={null} variant="dark">
+                {
+                    comicInfo.pages.map(function(i, index) {
+                      if (index === 0) {
+                        return (
+                          <Carousel.Item key={index}>
+                            <ImageFlipper images={comicInfo.pages} count={comicInfo.pageCount} number={i}/>
+                            <Carousel.Caption as="form-check">
+                              <label class="form-check-label" for="flexRadioDefault1">
+                                Use
+                              </label>
+                              <input class="form-check-input" type="radio" name="flexRadioDefault" defaultChecked value={i.source} id="flexRadioDefault1" onChange={addThumb}/>
+                            </Carousel.Caption>
+                          </Carousel.Item>
+                        )
+                      } else {
+                        return (
+                          <Carousel.Item key={index}>
+                            <ImageFlipper images={comicInfo.pages} count={comicInfo.pageCount} number={i}/>
+                            <Carousel.Caption as="form-check">
+                              <label class="form-check-label" for="flexRadioDefault1">
+                                Use
+                              </label>
+                              <input class="form-check-input" type="radio" name="flexRadioDefault" value={i.source} id="flexRadioDefault1" onChange={addThumb}/>
+                            </Carousel.Caption>
+                          </Carousel.Item>
+                        )
+                      }
+                    })
                     }
-                  })
-                  }
-              </Carousel>
-            </Form.Group>
-            <Col>
-              <Row>
-                <Form.Group className="mb-3 col" controlId="formSeries">
-                  <Form.Label>Series</Form.Label>
-                  <Form.Control type="text" defaultValue={comicInfo.series} onChange={addSeries} />
-                </Form.Group>
-                <Form.Group className="mb-3 col" controlId="formAlternateSeries">
-                  <Form.Label>Storyline</Form.Label>
-                  <Form.Control type="text" defaultValue={comicInfo.alternateSeries} onChange={addAlternateSeries} />
-                </Form.Group>
-              </Row>
-              <Row>
-                <Form.Group className="mb-3 col" controlId="formVolume">
-                  <Form.Label>Volume</Form.Label>
-                  <Form.Control type="number" defaultValue={comicInfo.volume} onChange={addVolume} />
-                </Form.Group>
-                <Form.Group className="mb-3 col" controlId="formIssueNo">
-                  <Form.Label>Issue</Form.Label>
-                  <Form.Control type="number" defaultValue={comicInfo.number} onChange={addNumber} />
-                </Form.Group>
-                <Form.Group className="mb-3 col" controlId="formCount">
-                  <Form.Label>Count (if limited series)</Form.Label>
-                  <Form.Control type="number" defaultValue={comicInfo.count} onChange={addCount} />
-                </Form.Group>
-              </Row>
-              <Row>
-                <Form.Group className="mb-3 col" controlId="formTitle">
-                  <Form.Label>Stories ("/" separated)</Form.Label>
-                  <Form.Control type="text" defaultValue={comicInfo.title} onChange={addTitle} />
-                </Form.Group>
-                <Form.Group className="mb-3 col" controlId="formGenre">
-                  <Form.Label>Genre</Form.Label>
-                  <Form.Control type="text" defaultValue={comicInfo.genre} onChange={addGenre} />
-                </Form.Group>
-              </Row>
-              <Row>
-                <Form.Group className="mb-3 col" controlId="formYear">
-                  <Form.Label>Year</Form.Label>
-                  <Form.Control type="number" defaultValue={comicInfo.year} onChange={addYear} />
-                </Form.Group>
-                <Form.Group className="mb-3 col" controlId="formMonth">
-                  <Form.Label>Month</Form.Label>
-                  <Form.Control type="number" defaultValue={comicInfo.month} onChange={addMonth} />
-                </Form.Group>
-              </Row>
-              <Row>
-                Fields marked with a * are comma separated
-              </Row>
-            </Col>
-          </Row>
-          <Row>
-            <Form.Group className="mb-3 col" controlId="formCharacters">
-              <Form.Label>Characters*</Form.Label>
-              <Form.Control as="textarea" rows="2" defaultValue={comicInfo.characters} onChange={addCharacters} />
-            </Form.Group>
-          </Row>
-          <Row>
-            <Form.Group className="mb-3 col" controlId="formSummary">
-              <Form.Label>Summary</Form.Label>
-              <Form.Control as="textarea" rows="2" defaultValue={comicInfo.summary} onChange={addSummary} />
-            </Form.Group>
-            <Form.Group className="mb-3 col" controlId="formNotes">
-              <Form.Label>Notes</Form.Label>
-              <Form.Control as="textarea" rows="2" defaultValue={comicInfo.notes} onChange={addNotes} />
-            </Form.Group>
-          </Row>
-          <Row>
-            <Form.Group className="mb-3 col" controlId="formBasicWriter">
-              <Form.Label>Writer*</Form.Label>
-              <Form.Control type="text" defaultValue={comicInfo.writer} onChange={addWriter} />
-            </Form.Group>
-            <Form.Group className="mb-3 col" controlId="formPenciller">
-              <Form.Label>Penciller*</Form.Label>
-              <Form.Control type="text" defaultValue={comicInfo.penciller} onChange={addPenciller} />
-            </Form.Group>
-            <Form.Group className="mb-3 col" controlId="formEditor">
-              <Form.Label>Editor*</Form.Label>
-              <Form.Control type="text" defaultValue={comicInfo.editor} onChange={addEditor} />
-            </Form.Group>
-          </Row>
-          <Row>
-            <Form.Group className="mb-3 col" controlId="formInker">
-              <Form.Label>Inker*</Form.Label>
-              <Form.Control type="text" defaultValue={comicInfo.inker} onChange={addInker} />
-            </Form.Group>
-            <Form.Group className="mb-3 col" controlId="formColorist">
-              <Form.Label>Colorist*</Form.Label>
-              <Form.Control type="text" defaultValue={comicInfo.colorist} onChange={addColorist} />
-            </Form.Group>
-            <Form.Group className="mb-3 col" controlId="formLetterer">
-              <Form.Label>Letterer*</Form.Label>
-              <Form.Control type="text" defaultValue={comicInfo.letterer} onChange={addLetterer} />
-            </Form.Group>
-            <Form.Group className="mb-3 col" controlId="formCoverArtist">
-              <Form.Label>Cover Artist*</Form.Label>
-              <Form.Control type="text" defaultValue={comicInfo.coverArtist} onChange={addCoverArtist} />
-            </Form.Group>
-          </Row>
-          <Row>
-            <Form.Group className="mb-3 col" controlId="formPublisher">
-              <Form.Label>Publisher</Form.Label>
-              <Form.Control type="text" defaultValue={comicInfo.publisher} onChange={addPublisher} />
-            </Form.Group>
-            <Form.Group className="mb-3 col" controlId="formImprint">
-              <Form.Label>Imprint</Form.Label>
-              <Form.Control type="text" defaultValue={comicInfo.imprint} onChange={addImprint} />
-            </Form.Group>
-          </Row>
+                </Carousel>
+              </Form.Group>
+              <Col>
+                <Row>
+                  <Form.Group className="mb-3 col" controlId="formSeries">
+                    <Form.Label>Series</Form.Label>
+                    <Form.Control type="text" defaultValue={comicInfo.series} onChange={addSeries} />
+                  </Form.Group>
+                  <Form.Group className="mb-3 col" controlId="formAlternateSeries">
+                    <Form.Label>Storyline</Form.Label>
+                    <Form.Control type="text" defaultValue={comicInfo.alternateSeries} onChange={addAlternateSeries} />
+                  </Form.Group>
+                </Row>
+                <Row>
+                  <Form.Group className="mb-3 col" controlId="formVolume">
+                    <Form.Label>Volume</Form.Label>
+                    <Form.Control type="number" defaultValue={comicInfo.volume} onChange={addVolume} />
+                  </Form.Group>
+                  <Form.Group className="mb-3 col" controlId="formIssueNo">
+                    <Form.Label>Issue</Form.Label>
+                    <Form.Control type="number" defaultValue={comicInfo.number} onChange={addNumber} />
+                  </Form.Group>
+                  <Form.Group className="mb-3 col" controlId="formCount">
+                    <Form.Label>Count (if limited series)</Form.Label>
+                    <Form.Control type="number" defaultValue={comicInfo.count} onChange={addCount} />
+                  </Form.Group>
+                </Row>
+                <Row>
+                  <Form.Group className="mb-3 col" controlId="formTitle">
+                    <Form.Label>Stories ("/" separated)</Form.Label>
+                    <Form.Control type="text" defaultValue={comicInfo.title} onChange={addTitle} />
+                  </Form.Group>
+                  <Form.Group className="mb-3 col" controlId="formGenre">
+                    <Form.Label>Genre</Form.Label>
+                    <Form.Control type="text" defaultValue={comicInfo.genre} onChange={addGenre} />
+                  </Form.Group>
+                </Row>
+                <Row>
+                  <Form.Group className="mb-3 col" controlId="formYear">
+                    <Form.Label>Year (required)</Form.Label>
+                    <Form.Control type="number" required defaultValue={comicInfo.year} onChange={addYear} />
+                  </Form.Group>
+                  <Form.Group className="mb-3 col" controlId="formMonth">
+                    <Form.Label>Month (required)</Form.Label>
+                    <Form.Control type="number" required defaultValue={comicInfo.month} onChange={addMonth} />
+                  </Form.Group>
+                </Row>
+                <Row>
+                  Fields marked with a * are comma separated
+                </Row>
+              </Col>
+            </Row>
+            <Row>
+              <Form.Group className="mb-3 col" controlId="formCharacters">
+                <Form.Label>Characters*</Form.Label>
+                <Form.Control as="textarea" rows="2" defaultValue={comicInfo.characters} onChange={addCharacters} />
+              </Form.Group>
+            </Row>
+            <Row>
+              <Form.Group className="mb-3 col" controlId="formSummary">
+                <Form.Label>Summary</Form.Label>
+                <Form.Control as="textarea" rows="2" defaultValue={comicInfo.summary} onChange={addSummary} />
+              </Form.Group>
+              <Form.Group className="mb-3 col" controlId="formNotes">
+                <Form.Label>Notes</Form.Label>
+                <Form.Control as="textarea" rows="2" defaultValue={comicInfo.notes} onChange={addNotes} />
+              </Form.Group>
+            </Row>
+            <Row>
+              <Form.Group className="mb-3 col" controlId="formBasicWriter">
+                <Form.Label>Writer*</Form.Label>
+                <Form.Control type="text" defaultValue={comicInfo.writer} onChange={addWriter} />
+              </Form.Group>
+              <Form.Group className="mb-3 col" controlId="formPenciller">
+                <Form.Label>Penciller*</Form.Label>
+                <Form.Control type="text" defaultValue={comicInfo.penciller} onChange={addPenciller} />
+              </Form.Group>
+              <Form.Group className="mb-3 col" controlId="formEditor">
+                <Form.Label>Editor*</Form.Label>
+                <Form.Control type="text" defaultValue={comicInfo.editor} onChange={addEditor} />
+              </Form.Group>
+            </Row>
+            <Row>
+              <Form.Group className="mb-3 col" controlId="formInker">
+                <Form.Label>Inker*</Form.Label>
+                <Form.Control type="text" defaultValue={comicInfo.inker} onChange={addInker} />
+              </Form.Group>
+              <Form.Group className="mb-3 col" controlId="formColorist">
+                <Form.Label>Colorist*</Form.Label>
+                <Form.Control type="text" defaultValue={comicInfo.colorist} onChange={addColorist} />
+              </Form.Group>
+              <Form.Group className="mb-3 col" controlId="formLetterer">
+                <Form.Label>Letterer*</Form.Label>
+                <Form.Control type="text" defaultValue={comicInfo.letterer} onChange={addLetterer} />
+              </Form.Group>
+              <Form.Group className="mb-3 col" controlId="formCoverArtist">
+                <Form.Label>Cover Artist*</Form.Label>
+                <Form.Control type="text" defaultValue={comicInfo.coverArtist} onChange={addCoverArtist} />
+              </Form.Group>
+            </Row>
+            <Row>
+              <Form.Group className="mb-3 col" controlId="formPublisher">
+                <Form.Label>Publisher</Form.Label>
+                <Form.Control type="text" defaultValue={comicInfo.publisher} onChange={addPublisher} />
+              </Form.Group>
+              <Form.Group className="mb-3 col" controlId="formImprint">
+                <Form.Label>Imprint</Form.Label>
+                <Form.Control type="text" defaultValue={comicInfo.imprint} onChange={addImprint} />
+              </Form.Group>
+            </Row>
+          </Modal.Body>
+          <Modal.Footer className="bg-dark">
+            <Button variant="outline-success" onClick={props.onHide}>Cancel</Button>
+            <Button variant="success" type="submit">Save</Button>
+          </Modal.Footer>
         </Form>
-        </Modal.Body>
-        <Modal.Footer className="bg-dark">
-          <Button variant="outline-success" onClick={props.onHide}>Cancel</Button>
-          <Button variant="success" onClick={handleSave}>Save</Button>
-        </Modal.Footer>
       </Modal>
     )
   } else {
