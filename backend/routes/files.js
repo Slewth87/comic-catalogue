@@ -131,6 +131,93 @@ router.post('/upload', async function (req, res) {
 
 /**
  * @openapi
+ * /files/check:
+ *   get:
+ *     description: 'Saved an uploaded file'
+ *     consumes:
+ *       multipart/form-data
+ *     produces:
+ *       application/json
+ *     responses:
+ *       201:
+ *         description: Returns success message confirming uploaded file
+ *       204:
+ *         description: Returns message advising no file received
+ *       401:
+ *         description: Notifies that passed token has expired
+ *       500:
+ *         description: Unkown error returned
+ */
+ router.get('/check', async function (req, res) {
+  var token = req.query.token;
+  console.log("passed in")
+  console.log(req.query)
+  var message = "Unknown error";
+  var status = 500;
+  try {
+    var decoded = await jwt.verify(token, "SECRET_KEY", {complete: true});
+    if(bcrypt.compareSync(decoded.payload.user_id, decoded.payload.hash)) {
+      try {
+        status = 200
+        var filename = "UnnamedComicBook";
+        if (req.query.series) {
+            if (req.query.number) {
+                if (req.query.vol) {
+                    filename = req.query.series + "-v" + req.query.vol + "-" + req.query.number + "-" + decoded.payload.user_id + ".cbz"
+                } else {
+                    filename = req.query.series + "-" + req.query.number + "-" + decoded.payload.user_id + ".cbz"
+                }
+            } else {
+                filename = req.query.series + "-" + decoded.payload.user_id + ".cbz"
+            }
+        } else {
+            filename = filename + "-" + decoded.payload.user_id + ".cbz"
+        }
+        var comics = fs.readdirSync("./comics/")
+        console.log("Checking if")
+        console.log(comics)
+        console.log("contains")
+        console.log(filename)
+        if (comics.includes(filename)) {
+          var title = filename.split("-");
+          console.log("title")
+          console.log(title)
+          message = "";
+          var db = new sqlite('database.db');
+          var dupe = await db.prepare('SELECT id FROM comics WHERE comic_file = (?)').all("/comics/" + filename)
+          console.log("dupe")
+          console.log(dupe)
+          var dupeID = [];
+          for (let i=0;i<dupe.length;i++) {
+            dupeID[i] = dupe[i].id
+          }
+          var dupename = "";
+          for (let i=0;i<title.length-1;i++) {
+            dupename = dupename + title[i] + " "
+            console.log("dupename")
+            console.log(dupename)
+          }
+          message = {
+            id: dupeID,
+            name: dupename
+          }
+        } else {
+          message = "all clear";
+        }
+      } catch (error) {
+        console.log(error)
+      }
+    }
+  } catch (error) {
+      console.log(error)
+      message = "Session expired. Please login again";
+      status = 401;
+  }
+  return res.status(status).send(message);
+});
+
+/**
+ * @openapi
  * /files/comics:
  *   get:
  *     description: 'Retrieve comics'
