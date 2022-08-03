@@ -51,6 +51,20 @@ router.post('/upload', async function (req, res) {
           status = 204;
         } else {
           let comicFile = req.files.comicFile;
+          let filetype = comicFile.name.split(".").pop();
+          let supported = ["cbz","cbr"]
+          if (filetype == "cbz") {
+            var location = './uploads/' + comicFile.name.slice(0, comicFile.name.length -4) + "-" + decoded.payload.user_id + ".zip";
+          } else if (filetype == "cbr") {
+            var location = './uploads/' + comicFile.name.slice(0, comicFile.name.length -4) + "-" + decoded.payload.user_id + ".rar";
+          }
+          if (supported.includes(filetype)) {
+            let filedata = {
+              name: comicFile.name,
+              location: location,
+              size: comicFile.size,
+              user: decoded.payload.user_id
+            }
             comicFile.mv(location);
   
             response = await uploader.upload(filedata);

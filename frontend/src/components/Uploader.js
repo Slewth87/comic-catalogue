@@ -13,8 +13,8 @@ function Uploader() {
     // Handles setting a file to upload
     function handleSelection(e) {
         e.preventDefault();
-        console.log(e.target.files[0])
         setFile(e.target.files[0]);
+        console.log(e.target.files[0])
     }
 
     // Removes temp files which were generated during upload for editing before saving
