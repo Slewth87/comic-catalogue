@@ -52,15 +52,27 @@ router.post('/upload', async function (req, res) {
         } else {
           let comicFile = req.files.comicFile;
           let filetype = comicFile.name.split(".").pop();
+          let uploaded = comicFile.name;
+          if (uploaded.includes('#')) {
+            while (uploaded.includes('#')) {
+              if (uploaded.charAt(0) === "#") {
+                uploaded = uploaded.split("#").pop();
+              } else {
+                uploaded = uploaded.split("#")[0]
+              }
+            }
+          }
+          console.log("uploaded")
+          console.log(uploaded)
           let supported = ["cbz","cbr"]
           if (filetype == "cbz") {
-            var location = './uploads/' + comicFile.name.slice(0, comicFile.name.length -4) + "-" + decoded.payload.user_id + ".zip";
+            var location = './uploads/' + uploaded.slice(0, uploaded.length -4) + "-" + decoded.payload.user_id + ".zip";
           } else if (filetype == "cbr") {
-            var location = './uploads/' + comicFile.name.slice(0, comicFile.name.length -4) + "-" + decoded.payload.user_id + ".rar";
+            var location = './uploads/' + uploaded.slice(0, uploaded.length -4) + "-" + decoded.payload.user_id + ".rar";
           }
           if (supported.includes(filetype)) {
             let filedata = {
-              name: comicFile.name,
+              name: uploaded,
               location: location,
               size: comicFile.size,
               user: decoded.payload.user_id
@@ -359,9 +371,26 @@ router.get('/comics', async function(req, res) {
       try {
         var comic = JSON.parse(req.query.comic)
         var start = "." + comic.comic_file
-        // let location = ".." + comic.comic_file + ".bin"
         let size = fs.statSync(start).size
-        let location = "./uploads/" + comic.series + "-v" + comic.volume + "-" + comic.issue_number + "-" + decoded.payload.user_id
+        var series = comic.series;
+        if (comic.series.includes('#')) {
+            series = comic.series.replace("#", "")
+        }
+        if (series.includes(':')) {
+                series = comic.series.replace(":", "")
+        }
+        if (series.includes('/')) {
+                series = comic.series.replace("/", "")
+        }
+        let location = "./uploads/" + series
+        if (comic.issue_number) {
+          if (comic.volume) {
+            location = location + "-v" + comic.volume + "-" + comic.issue_number
+          } else {
+            location = location + "-" + comic.issue_number
+          }
+        }
+        location = location + "-" + decoded.payload.user_id
         await fs.rename(start, location + ".zip", function (err) {
           if (err) {
             console.log(err)
@@ -548,7 +577,7 @@ router.get('/comics', async function(req, res) {
   }
   if(bcrypt.compareSync(decoded.payload.user_id, decoded.payload.hash)) {
     try {
-      uploader.cleaner(req.query.tmp, req.query.upload, req.query.source)
+      uploader.cleaner(req.query.tmp, req.query.upload, req.query.source, decoded.payload.user_id)
       res.status(200);
     } catch (err) {
       console.log(err)
