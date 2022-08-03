@@ -503,8 +503,10 @@ async function cleaner(tmp, upload, source, user) {
             var spot = 0;
             for (let i=0;i<thumbs.length;i++) {
                 if (!baseArray.includes(thumbs[i]+'"')) {
-                    clearout[spot] = thumbs[i]
-                    spot++;
+                    if (thumbs[i] != ".gitkeep") {
+                        clearout[spot] = thumbs[i]
+                        spot++;
+                    }
                 }
             }
             console.log("clearout")
@@ -522,7 +524,6 @@ async function cleaner(tmp, upload, source, user) {
       await fs.rename(upload, location, function (err) {
         if (err) {
           console.log(err)
-          return res.status(500).send();
         }
       })
     }
