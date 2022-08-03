@@ -161,7 +161,7 @@ function Comic(props) {
                                     <h2>{comic.alternate_series ? <Link to="/" state={{field: "Series", keyword: comic.alternate_series}}>{comic.alternate_series}</Link> : ""}</h2>
                                 </Row>
                                 <Row>
-                                    <h3>{comic.title}</h3>
+                                    <h3>{comic.title ? comic.title : ""}</h3>
                                 </Row>
                                 <Row>
                                     <h5>{month} {comic.publication ? <Link to="/" state={{field: "Year", keyword: (comic.publication).split("-")[0]}}>{(comic.publication).split("-")[0]}</Link> : ""}</h5>
@@ -170,7 +170,7 @@ function Comic(props) {
                                     <Col>
                                         <Row>
                                             <ul>
-                                                { comic.writer ? "Written by: " : "" }{
+                                                { comic.writer ? "Written by: " : "" }{ comic.writer ?
                                                     writer.map(function(i, index) {
                                                         return (
                                                             <li key={index} className="characterList" >
@@ -178,12 +178,12 @@ function Comic(props) {
                                                             </li>
                                                         )
                                                     })
-                                                }
+                                                : ""}
                                             </ul>
                                         </Row>
                                         <Row>
                                             <ul>
-                                                { comic.penciller ? "Pencils: " : "" }{
+                                                { comic.penciller ? "Pencils: " : "" }{ comic.penciller ?
                                                     penciller.map(function(i, index) {
                                                         return (
                                                             <li key={index} className="characterList" >
@@ -191,12 +191,12 @@ function Comic(props) {
                                                             </li>
                                                         )
                                                     })
-                                                }
+                                                : ""}
                                             </ul>
                                         </Row>
                                         <Row>
                                             <ul>
-                                                { comic.inker ? "Inks by: " : "" }{
+                                                { comic.inker ? "Inks by: " : "" }{ comic.inker ?
                                                     inker.map(function(i, index) {
                                                         return (
                                                             <li key={index} className="characterList" >
@@ -204,12 +204,12 @@ function Comic(props) {
                                                             </li>
                                                         )
                                                     })
-                                                }
+                                                : "" }
                                             </ul>
                                         </Row>
                                         <Row>
                                             <ul>
-                                                { comic.colorist ? "Colours: " : "" }{
+                                                { comic.colorist ? "Colours: " : "" }{ comic.colorist ?
                                                     colorist.map(function(i, index) {
                                                         return (
                                                             <li key={index} className="characterList" >
@@ -217,12 +217,12 @@ function Comic(props) {
                                                             </li>
                                                         )
                                                     })
-                                                }
+                                                : ""}
                                             </ul>
                                         </Row>
                                         <Row>
                                             <ul>
-                                                { comic.letterer ? "Letterer: " : "" }{
+                                                { comic.letterer ? "Letterer: " : "" }{ comic.letterer ? 
                                                     letterer.map(function(i, index) {
                                                         return (
                                                             <li key={index} className="characterList" >
@@ -230,12 +230,12 @@ function Comic(props) {
                                                             </li>
                                                         )
                                                     })
-                                                }
+                                                : "" }
                                                 </ul>
                                         </Row>
                                         <Row>
                                             <ul>
-                                                { comic.cover_artist ? "Cover Art: " : "" }{
+                                                { comic.cover_artist ? "Cover Art: " : "" }{ comic.cover_artist ?
                                                     cover_artist.map(function(i, index) {
                                                         return (
                                                             <li key={index} className="characterList" >
@@ -243,12 +243,12 @@ function Comic(props) {
                                                             </li>
                                                         )
                                                     })
-                                                }
+                                                : ""}
                                             </ul>
                                         </Row>
                                         <Row>
                                             <ul>
-                                                { comic.editor ? "Edited by: " : "" }{
+                                                { comic.editor ? "Edited by: " : "" }{ comic.editor ?
                                                     editor.map(function(i, index) {
                                                         return (
                                                             <li key={index} className="characterList" >
@@ -256,7 +256,7 @@ function Comic(props) {
                                                             </li>
                                                         )
                                                     })
-                                                }
+                                                : ""}
                                             </ul>
                                         </Row>
                                     </Col>
@@ -281,14 +281,14 @@ function Comic(props) {
                                 <Row>
                                     <h5>{comic.characters ? "Featuring:" : ""}</h5>
                                     <ul>
-                                    {
+                                    { comic.characters ?
                                         characters.map(function(i, index) {
                                             return (
                                                 <li key={index} className="characterList" >
                                                     <Link to="/" state={{field: "Character", keyword: i}}>{i}</Link>{index !== characters.length-1 ? ", " : ""}
                                                 </li>)
                                         })
-                                    }
+                                    : ""}
                                     </ul>
                                 </Row>
                                 <Row>
