@@ -31,7 +31,7 @@ function Login(props) {
             setUsername("");
             setPassword("");
         } catch (e) {
-            if (e.response.status === 400) {
+            if (e.response.status === 401) {
                 setMesage(e.response.data.message)
             } else {
                 setMesage("An unknown error occured")

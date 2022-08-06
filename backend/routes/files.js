@@ -511,7 +511,7 @@ router.get('/comics', async function(req, res) {
         var field = req.query.field.toLowerCase();
       }
       // Pulls all possible terms from the specified columns
-      var sql = 'SELECT DISTINCT ' + field + ' FROM comics'
+      var sql = 'SELECT DISTINCT ' + field + ' FROM comics WHERE user_id = ' + decoded.payload.user_id
       console.log(sql)
       var db = new sqlite('database.db');
       var possible = await db.prepare(sql).all();

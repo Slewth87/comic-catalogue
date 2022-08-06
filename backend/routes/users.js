@@ -68,7 +68,7 @@ router.post('/login', async function (req, res) {
         token: token
       })
     } else {
-      return res.status(401).json({
+      return res.status(401).send({
         message: "invalid credentials"
       })
     }
@@ -76,7 +76,7 @@ router.post('/login', async function (req, res) {
     console.log(err)
   }
 
-  res.status(401).json({
+  return res.status(401).json({
     message: "invalid credentials"
   })
 });

@@ -12,12 +12,22 @@ function Search (props) {
 
     // Allows for populating values if this page is being loaded due to a clicked link specifying a particular value to look up
     // Use of prefill state prevents constant re-rendering of State
-    if (!prefill) {
+    async function prefiller() {
         setPrefill(true);
         if (props.prefill) {
             setField(props.prefill.field);
             populate(props.prefill.field);
+        } else if (!props.prefill) {
+            setField("All");
+            await populate("All");
+            var selector = document.querySelector('#keywords')
+            selector.value = "home"
         }
+    }
+
+    // Makes sure the prefiller runs once on page load
+    if (!prefill) {
+        prefiller();
     }
 
     // Handles making a selection of a field to search

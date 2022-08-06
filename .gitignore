@@ -3,6 +3,7 @@
 /backend/node_modules
 /frontend/node_modules
 /backend/comics/*
+/backend/database.db
 !/backend/comics/.gitkeep
 /backend/thumbnails/*
 !/backend/thumbnails/.gitkeep

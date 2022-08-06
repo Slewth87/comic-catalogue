@@ -509,12 +509,12 @@ async function cleaner(tmp, upload, source, user) {
         // console.log(file)
 
         // clears the tmp folder
-        clearUploads(tmp.split("-").pop())
+        clearUploads(user)
 
         // clears out the old thumbnail by deleting thumbnail files that are no longer referenced in the database (also serves to clean up this folder if anything else caused an errant thumbnail appeared here)
         var db = new sqlite('database.db', { verbose: console.log});
         // get a list of thumbnails referenced in the database
-        var thumbBase = await db.prepare('SELECT thumbnail FROM comics WHERE user_id = (?)').all(user)
+        var thumbBase = await db.prepare('SELECT thumbnail FROM comics').all();
         // get a list of thumbnails saved in storage
         var thumbs = fs.readdirSync("./thumbnails/")
         var baseArray = [];

@@ -358,11 +358,11 @@ function Modals(props) {
                   <Row>
                     <Form.Group className="mb-3 col" controlId="formYear">
                       <Form.Label>Year (required)</Form.Label>
-                      <Form.Control type="number" required defaultValue={comicInfo.year} onChange={addYear} />
+                      <Form.Control type="number" required min="1200" defaultValue={comicInfo.year} onChange={addYear} />
                     </Form.Group>
                     <Form.Group className="mb-3 col" controlId="formMonth">
                       <Form.Label>Month (required)</Form.Label>
-                      <Form.Control type="number" required defaultValue={comicInfo.month} onChange={addMonth} />
+                      <Form.Control type="number" required min="1" max="12" defaultValue={comicInfo.month} onChange={addMonth} />
                     </Form.Group>
                   </Row>
                   <Row>
