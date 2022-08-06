@@ -1,3 +1,5 @@
+// Deeper processing and manipulation of files rather than trying to do everything immediately in the ./routes/files.js endpoints
+
 const AdmZip = require("adm-zip");
 const Unrar = require('node-unrar-js');
 const fs = require("fs");
@@ -6,10 +8,11 @@ const sizeOf = require('image-size');
 const format = require('js2xmlparser');
 const sqlite = require('better-sqlite3');
 
+// Initial processing of uploaded or editing files
 async function upload(file) {
     // prep folder location and name data
-    console.log("first hit of uploader")
-    console.log(file)
+    // console.log("first hit of uploader")
+    // console.log(file)
     var folderName = file.name.slice(0, file.name.length -4) + "-" + file.user
     // initialise variables for use in loop
     var loop = 0;
@@ -36,11 +39,11 @@ async function upload(file) {
                 var extract = "./tmp/" + folderName
                 console.log("Extractor")
                 if (file.location.split(".").pop() === "zip") {
-                    console.log("Extract zip")
+                    // console.log("Extract zip")
                     var zip = new AdmZip(file.location);
                     zip.extractAllTo(extract)
                 } else if (file.location.split(".").pop() === "rar") {
-                    console.log("Extract rar")
+                    // console.log("Extract rar")
                     await rarExtractor(file.location, extract)
                 }
                 // console.log("Extracted on loop " + loop + ": " + stored);
@@ -49,7 +52,7 @@ async function upload(file) {
                 // console.log("THis info")
                 // console.log(comicInfo.Series)
                 message = {
-                    message: "Upload of " + comicInfo.series + " Vol. " + comicInfo.volume + " #" + comicInfo.number + " successful",
+                    message: "Comic file prepped for saving",
                     comic: comicInfo
                 };
                 status = 201;
@@ -96,12 +99,13 @@ async function XMLReader(extract) {
             }
         }
     }
-    console.log("extraction passed")
-    console.log(rawInfo)
+    // console.log("extraction passed")
+    // console.log(rawInfo)
     var comicInfo = normaliser(rawInfo, extract);
     return comicInfo;
 }
 
+// Extracts files if the filetype is rar/cbr
 async function rarExtractor(file, destination) {
     try {
         const extractor = await Unrar.createExtractorFromFile({
@@ -115,6 +119,7 @@ async function rarExtractor(file, destination) {
     }
 }
 
+// finds and extracts data from the xml
 function extractor(extract) {
     // console.log("Received: " + extract)
     // gets all entries in the folder
@@ -143,6 +148,7 @@ function extractor(extract) {
         return comicInfo;
 }
 
+// Normalises data from the xml
 function normaliser(rawInfo, location) {
     var comicInfo = rawInfo;
     var files = fs.readdirSync(location)
@@ -173,11 +179,12 @@ function normaliser(rawInfo, location) {
     var pages = {};
 
     for (let i=0; i<files.length; i++) {
-        // checks if the current entry is an .jpg file 
+        // checks if the current entry is a .jpg file 
         if (files[i].split(".").pop().toLowerCase() == "jpg" || files[i].split(".").pop().toLowerCase() == "jpeg") {
             pageCount++;
         }
     }
+    // Maps file info from the xml to the relevant variables
     if (rawInfo != null) {
         for (let i=0;i<Object.keys(rawInfo).length;i++) {
             if (Object.keys(rawInfo)[i] === "Title") {
@@ -229,6 +236,7 @@ function normaliser(rawInfo, location) {
         }
     }
 
+    // Sets the page info as JSON objects
     var imageNo = 0;
         var page = [pageCount];
         // pages = rawInfo[Object.keys(rawInfo)[i]];
@@ -250,45 +258,51 @@ function normaliser(rawInfo, location) {
         }
         pages = page;
     
-    comicInfo = {
-        title: title,
-        series: series,
-        number: number,
-        count: count,
-        volume: volume,
-        alternateSeries: alternateSeries,
-        summary: summary,
-        notes: notes,
-        year: year,
-        month: month,
-        writer: writer,
-        penciller: penciller,
-        inker: inker,
-        colorist: colorist,
-        letterer: letterer,
-        coverArtist: coverArtist,
-        editor: editor,
-        publisher: publisher,
-        imprint: imprint,
-        genre: genre,
-        pageCount: pageCount,
-        format: format,
-        characters: characters,
-        pages: pages,
-        location: location
-    }
+        //builds the details into a response
+        comicInfo = {
+            title: title,
+            series: series,
+            number: number,
+            count: count,
+            volume: volume,
+            alternateSeries: alternateSeries,
+            summary: summary,
+            notes: notes,
+            year: year,
+            month: month,
+            writer: writer,
+            penciller: penciller,
+            inker: inker,
+            colorist: colorist,
+            letterer: letterer,
+            coverArtist: coverArtist,
+            editor: editor,
+            publisher: publisher,
+            imprint: imprint,
+            genre: genre,
+            pageCount: pageCount,
+            format: format,
+            characters: characters,
+            pages: pages,
+            location: location
+        }
 
-    console.log("Normalised")
-    console.log(comicInfo)
+    // console.log("Normalised")
+    // console.log(comicInfo)
     return comicInfo;
 }
 
+// Manages the saving of the comic and data to relevant folders and the database
 async function save(data, user_id) {
+    // Builds a new xml file from received edited data
     await buildXml(data);
+    // saves the comic file to long term storage
     var location = await zipIt(data, user_id);
+    // Adds the comic metadata to the database
     await storeIt(data, location, user_id);
 }
 
+// Builds a new xml file from received edited data
 function buildXml(data) {
     var json = "{";
     if (data.title) {
@@ -377,8 +391,10 @@ function buildXml(data) {
     }
     json = json + "}"
     // console.log(json)
+    //converts the built data to an xml file
     var xml = format.parse("ComicInfo", JSON.parse(json))
     // console.log(xml);
+    // saves the xml file within the comic folder
     let finalxml = data.location + "/ComicInfo.xml";
     fs.writeFileSync(finalxml, xml, function(err) {
         if (err) {
@@ -387,19 +403,23 @@ function buildXml(data) {
     });
 }
 
+// zips and stores the new comic file
 function zipIt(data, user_id) {
     var zip = new AdmZip();
     var files = fs.readdirSync(data.location)
     var filename = "UnnamedComicBook";
     // console.log(data)
+    // Adds all the relevant files to the zip
     zip.addLocalFile(data.location + "/ComicInfo.xml")
     for (let i=0;i<files.length;i++) {
         if (files[i].split(".").pop().toLowerCase() == "jpg" || files[i].split(".").pop().toLowerCase() == "jpeg") {
             zip.addLocalFile(data.location + "/" + files[i]);
         }
     }
+    // Builds the new comic file name
     if (data.series) {
         var series = data.series;
+        // Ensures the new file name doesn't include any invalid characters
         if (data.series.includes('#')) {
             series = data.series.replace("#", "")
         }
@@ -422,6 +442,7 @@ function zipIt(data, user_id) {
         filename = filename + "-" + user_id
     }
 
+    // Saves the thumbnail image for the file
     if (data.thumb) {
         fs.copyFile("." + data.thumb, "./thumbnails/" + filename + ".jpg", (err) => {
             if (err) {
@@ -432,16 +453,20 @@ function zipIt(data, user_id) {
         });
     }
 
+    // sets where to save the files
     var locator = {
         cbz: "/comics/" + filename + ".cbz",
         thumb: "/thumbnails/" + filename + ".jpg"
     }
 
+    // savese the new zip/cbz
     zip.writeZip("." + locator.cbz)
+    // Clears temp files
     clearUploads(user_id)
     return locator;
 }
 
+// Clears temp files
 function clearUploads(user) {
     var finishedUploads = fs.readdirSync("./uploads/")
     for (let i=0;i<finishedUploads.length;i++) {
@@ -455,11 +480,13 @@ function clearUploads(user) {
     }
 }
 
+// cleans out temporary files
 async function cleaner(tmp, upload, source, user) {
     var extension = "zip";
-    console.log("cleaner")
-    console.log(tmp)
-    console.log(upload)
+    // console.log("cleaner")
+    // console.log(tmp)
+    // console.log(upload)
+    //Clears the tmp folder
     fs.rmdir("./tmp/" + tmp.split("/")[2], { recursive: true, force: true }, (err) => {
         if (err) {
             return console.log("error deleting raw", err)
@@ -467,37 +494,39 @@ async function cleaner(tmp, upload, source, user) {
             console.log("Deleted raw")
         }
     })
+
+    // Clears the temp folders when the new file is saved
     if (source === "save") {
+        // sets the aproppriate filetype to look for based on the upload
         if (upload.split(".").pop() === "cbz") {
             extension = "zip"
         } else if (upload.split(".").pop() === "cbr") {
             extension = "rar"
         }
-        console.log("tmp: " + tmp)
-        console.log("upload: " + upload)
+        // console.log("tmp: " + tmp)
+        // console.log("upload: " + upload)
         var file = upload.split(".")
-        var ind;
-        if (file[0] === "") {
-            ind = 1;
-        } else {
-            ind = 0;
-        }
-        console.log(file)
+        // console.log(file)
 
+        // clears the tmp folder
         clearUploads(tmp.split("-").pop())
 
-
+        // clears out the old thumbnail by deleting thumbnail files that are no longer referenced in the database (also serves to clean up this folder if anything else caused an errant thumbnail appeared here)
         var db = new sqlite('database.db', { verbose: console.log});
+        // get a list of thumbnails referenced in the database
         var thumbBase = await db.prepare('SELECT thumbnail FROM comics WHERE user_id = (?)').all(user)
+        // get a list of thumbnails saved in storage
         var thumbs = fs.readdirSync("./thumbnails/")
         var baseArray = [];
+        // convert database result to a format for comparison to the storage result
         for (let i=0;i<thumbBase.length;i++) {
             baseArray[i] = JSON.stringify(thumbBase[i].thumbnail).split("/").pop()
         }
-        console.log("thumbBase")
-        console.log(baseArray)
-        console.log("thumbs")
-        console.log(thumbs)
+        // console.log("thumbBase")
+        // console.log(baseArray)
+        // console.log("thumbs")
+        // console.log(thumbs)
+        // Build an array of thumbnails which are not referenced in the database
         if (thumbs.length > baseArray.length) {
             var clearout = [];
             var spot = 0;
@@ -509,8 +538,9 @@ async function cleaner(tmp, upload, source, user) {
                     }
                 }
             }
-            console.log("clearout")
-            console.log(clearout)
+            // console.log("clearout")
+            // console.log(clearout)
+            // deletes thumbnails which are not referenced in the database
             for (let i=0;i<clearout.length;i++) {
                 fs.unlink("./thumbnails/" + clearout[i], (err) => {
                     if (err) {
@@ -519,6 +549,7 @@ async function cleaner(tmp, upload, source, user) {
                 })
             }
         }
+        // Puts comic files back into main storage if the edit is cancelled
     } else if (source === "cancel") {
       let location = "./comics/" + upload.split("/").pop().split(".")[0] + ".cbz"
       await fs.rename(upload, location, function (err) {
@@ -529,9 +560,10 @@ async function cleaner(tmp, upload, source, user) {
     }
 }
 
+// stores comic details in the database
 function storeIt(data, location, user_id) {
-    console.log("prepping:")
-    console.log(data)
+    // console.log("prepping:")
+    // console.log(data)
     var title;
     var series;
     var issue_number;
@@ -632,13 +664,15 @@ function storeIt(data, location, user_id) {
     try {
         var db = new sqlite('database.db');
         if (data.source === "upload") {
+            // add a new entry to the database if this is an upload of a new file
             db.prepare('INSERT INTO comics (user_id, title, series, issue_number, series_count, volume, alternate_series, summary, notes, publication, writer, penciller, inker, colorist, letterer, cover_artist, editor, publisher, imprint, genre, comic_format, characters, thumbnail, comic_file) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)').run(user_id, title, series, issue_number, series_count, volume, alternate_series, summary, notes, publication, writer, penciller, inker, colorist, letterer, cover_artist, editor, publisher, imprint, genre, comic_format, characters, thumbnail, comic_file);
         } else if (data.source === "edit") {
+            // update a database entry if this is the editing of an existing file
             db.prepare('UPDATE comics SET user_id = ?, title = ?, series = ?, issue_number = ?, series_count = ?, volume = ?, alternate_series = ?, summary = ?, notes = ?, publication = ?, writer = ?, penciller = ?, inker = ?, colorist = ?, letterer = ?, cover_artist = ?, editor = ?, publisher = ?, imprint = ?, genre = ?, comic_format = ?, characters = ?, thumbnail = ?, comic_file = ? WHERE id = ?').run(user_id, title, series, issue_number, series_count, volume, alternate_series, summary, notes, publication, writer, penciller, inker, colorist, letterer, cover_artist, editor, publisher, imprint, genre, comic_format, characters, thumbnail, comic_file, data.id);
         } 
-        var upload = db.prepare('SELECT * FROM comics WHERE user_id = (?)').all(user_id)
-        console.log("Database updated")
-        console.log(upload)
+        // var upload = db.prepare('SELECT * FROM comics WHERE user_id = (?)').all(user_id)
+        // console.log("Database updated")
+        // console.log(upload)
     } catch (err) {
         console.log(err)
     }

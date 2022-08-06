@@ -1,4 +1,4 @@
-// Builds the comic card for displaying a single comic
+// Builds the comic card for displaying a single comic on the comic info page
 
 import { Card, Col, Row, Container, ButtonGroup, Button } from 'react-bootstrap';
 import fileDownload from 'js-file-download';
@@ -60,8 +60,7 @@ function Comic(props) {
     }
 
     // Calls a confirmation modal before deleting a comic book
-    function deleter(e) {
-        // e.preventDefault();
+    function deleter() {
         setDeleteShow(true);
     }
 

@@ -6,9 +6,7 @@ import { Navigate, useLocation } from 'react-router-dom';
 import Comics from '../components/Comics';
 import Search from '../components/Search';
 
-function Catalogue(props, state) {
-    // console.log("Search")
-    // console.log(state)
+function Catalogue(props) {
     const [comics, setComics] = useState();
 
     // Checks for received prefilled search terms if page is linked to with a direct search

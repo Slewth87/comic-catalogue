@@ -1,3 +1,5 @@
+// Handling of user registration and login API endpoints
+
 var express = require('express');
 var router = express.Router();
 var jwt = require('jsonwebtoken');
@@ -36,9 +38,7 @@ router.get('/user', async function(req, res, next) {
   } else {
     return res.status(401).json({"message": "expired"})
   }
-
 });
-
 
 /**
  * @openapi
@@ -52,8 +52,8 @@ router.get('/user', async function(req, res, next) {
  *     responses:
  *       200:
  *         description: Returns json web token
- *       400:
- *         description: Returns invalid credentials when wrong credentials provided
+ *       401:
+ *         description: Returns 'invalid credentials' when wrong credentials provided
  */
 router.post('/login', async function (req, res) {
   var username = req.body.username;
@@ -68,7 +68,7 @@ router.post('/login', async function (req, res) {
         token: token
       })
     } else {
-      return res.status(400).json({
+      return res.status(401).json({
         message: "invalid credentials"
       })
     }
@@ -76,7 +76,7 @@ router.post('/login', async function (req, res) {
     console.log(err)
   }
 
-  res.status(400).json({
+  res.status(401).json({
     message: "invalid credentials"
   })
 });
@@ -95,7 +95,9 @@ router.post('/login', async function (req, res) {
  *       201:
  *         description: Returns empty request
  *       400:
- *         description: Return user already exists when user already exists in system
+ *         description: Return 'user already exists' when user already exists in system
+ *       500:
+ *         description: Catch all error for any other issues
  */
 router.post('/register', async function (req, res) {
   var username = req.body.username;
@@ -114,7 +116,7 @@ router.post('/register', async function (req, res) {
   } catch (err) {
     console.log(err)
   }
-  return res.status(400).json({
+  return res.status(500).json({
     message: "an error occured please try again later"
   })
 });

@@ -42,16 +42,16 @@ function Modals(props) {
   const [thumb, setThumb] = useState('');
   const [location, setLocation] = useState('');
   const [pages, setPages] = useState();
-  var [check, setCheck] =useState();
+  const [check, setCheck] =useState();
 
   // handles adding a new game to the db
   async function handleSave(e) {
     e.preventDefault();
     const token = localStorage.getItem('token')
-    var check = await checker(token);
-    console.log("Check result")
-    console.log(check)
-    if (check === "all clear") {
+    var checking = await checker(token);
+    // console.log("Check result")
+    // console.log(checking)
+    if (checking === "all clear") {
       await axios.post("http://localhost:2814/files/save", {params: {
         title: title,
         series: series,
@@ -96,11 +96,12 @@ function Modals(props) {
       // Close the modal
       props.onHide("save");
     } else {
-      setCheck(check);
+      setCheck(checking);
       setCheckShow(true)
     }
   }
 
+  // Checks the database for an already existing version of the file.
   async function checker(token) {
     console.log("called checker")
     var params = {
@@ -114,8 +115,8 @@ function Modals(props) {
     console.log(checkResult)
     return checkResult.data;
   }
-  // Handles the editing of the various fields
 
+  // Handles the editing of the various fields
   function addTitle(e) {
     e.preventDefault();
     setTitle(e.target.value)
@@ -267,6 +268,7 @@ function Modals(props) {
         <Check
           show={checkShow}
           filecheck={check}
+          closer={() => props.onHide}
           onHide={() => setCheckShow(false)}
           />
         <Modal onLoad={loader}

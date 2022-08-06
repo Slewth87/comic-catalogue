@@ -1,13 +1,16 @@
+// Modal to alert when attempting to upload a duplicate file
+
 import { Modal, Button } from "react-bootstrap";
 import { Link } from 'react-router-dom';
 
 function Check(props) {
     if (props.filecheck) {
-        console.log("props.filecheck")
-        console.log(props.filecheck)
+        // console.log("props.filecheck")
+        // console.log(props.filecheck)
         var dupeID = props.filecheck.id;
-        console.log("dupeID")
-        console.log(dupeID)
+        // console.log("dupeID")
+        // console.log(dupeID)
+
         return (
             <Modal
             {...props}
@@ -24,9 +27,10 @@ function Check(props) {
                     Either edit the details of this existing entry:
                     <ul>
                         {
+                            // data comes in an array, only expected to have one result, but allowing for more.
                             dupeID.map(function(i, index) {
                                 return (
-                                    <li><Link to={"/comic/" + i} key={index}>{props.filecheck.name}</Link></li>
+                                    <li key={index}><Link to={"/comic/" + i} onClick={props.closer()}>{props.filecheck.name}</Link></li>
                                 )
                             })
                         }

@@ -11,7 +11,7 @@ function Search (props) {
     const [prefill, setPrefill] = useState(false)
 
     // Allows for populating values if this page is being loaded due to a clicked link specifying a particular value to look up
-    // Use of prefill value prevents constant re-rendering of State
+    // Use of prefill state prevents constant re-rendering of State
     if (!prefill) {
         setPrefill(true);
         if (props.prefill) {
@@ -22,7 +22,6 @@ function Search (props) {
 
     // Handles making a selection of a field to search
     function handleField(e) {
-        console.log("tried it")
         e.preventDefault()
         setField(e.target.value);
         populate(e.target.value);
