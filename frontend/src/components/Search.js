@@ -41,7 +41,7 @@ function Search (props) {
     async function populate(possibles) {
         const token = localStorage.getItem('token')
         var long = "";
-        var possible = await axios.get('http://localhost:2814/files/comicsfields', {params: {token: token, field: possibles}});
+        var possible = await axios.get('http://34.244.147.208:2814/files/comicsfields', {params: {token: token, field: possibles}});
         var categories = Object.keys(possible.data[0])
 
         for (let i=0;i<possible.data.length;i++) {

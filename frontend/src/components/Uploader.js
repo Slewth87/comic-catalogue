@@ -24,7 +24,7 @@ function Uploader() {
         // console.log("appeared");
         // console.log(file.name);
         // console.log(comicInfo.location);
-        axios.get("http://localhost:2814/files/cleaner", {params:{token: token, tmp: comicInfo.location, upload: file.name, source: "save"}})
+        axios.get("http://34.244.147.208:2814/files/cleaner", {params:{token: token, tmp: comicInfo.location, upload: file.name, source: "save"}})
     }
 
     // Passes the selected file to the backend for storage
@@ -41,7 +41,7 @@ function Uploader() {
         };
         try {
             // console.log("data:")
-            var data = await axios.post("http://localhost:2814/files/upload?token="+token, formData, config);
+            var data = await axios.post("http://34.244.147.208:2814/files/upload?token="+token, formData, config);
             if (data.status === 204) {
                 setMessage("No file selected")
             } else {

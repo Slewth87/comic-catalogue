@@ -33,7 +33,7 @@ function Catalogue(props) {
     // Populates the catologue view based on any selected filters
     async function fetch(search){
         const token = localStorage.getItem('token')
-        var response = await axios.get('http://localhost:2814/files/comics', {params: {token: token, search: search}});
+        var response = await axios.get('http://34.244.147.208:2814/files/comics', {params: {token: token, search: search}});
         setComics(response.data)
     }
 

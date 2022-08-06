@@ -21,13 +21,13 @@ function Register(props) {
     async function handleSubmit(e) {
         e.preventDefault();
         try {
-            var data = await axios.post("http://localhost:2814/users/register",
+            var data = await axios.post("http://34.244.147.208:2814/users/register",
             {
                 username: username,
                 password: password
             });
             // Automatically logs user in on successful registration
-            data = await axios.post("http://localhost:2814/users/login", {
+            data = await axios.post("http://34.244.147.208:2814/users/login", {
                 username: username,
                 password: password
             });

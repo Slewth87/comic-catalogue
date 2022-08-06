@@ -22,7 +22,7 @@ function Login(props) {
     async function handleSubmit(e) {
         e.preventDefault();
         try {
-            var data = await axios.post("http://localhost:2814/users/login", {
+            var data = await axios.post("http://34.244.147.208:2814/users/login", {
                 username: username,
                 password: password
             })

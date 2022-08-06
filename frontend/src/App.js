@@ -20,7 +20,7 @@ function App() {
     const token = localStorage.getItem("token")
 
     if (token) {
-      var data = await axios.get("http://localhost:2814/users/user", {params: {token: token}})
+      var data = await axios.get("http://34.244.147.208:2814/users/user", {params: {token: token}})
       if (data.status === 200) {
         setLoggedIn(true)
       } else {

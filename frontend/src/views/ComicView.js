@@ -13,7 +13,7 @@ function ComicView() {
     useEffect(() => {
         async function fetch() {
             const token = localStorage.getItem('token')
-            var response = await axios.get('http://localhost:2814/files/comics', {params: {token: token, id: comicId}});
+            var response = await axios.get('http://34.244.147.208:2814/files/comics', {params: {token: token, id: comicId}});
             setComic(response.data[0])
         }
         fetch();
