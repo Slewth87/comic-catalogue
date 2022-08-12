@@ -49,8 +49,10 @@ function Login(props) {
                 <h4>{message}</h4>
                 <br/>
                 <input value={username} onChange={handleUsernameInput} />
+                <p>Username</p>
                 <br/>
                 <input value={password} type="password" onChange={handlePasswordInput} />
+                <p>Password</p>
                 <br/>
                 <button onClick={handleSubmit} >Login</button>
             </div>

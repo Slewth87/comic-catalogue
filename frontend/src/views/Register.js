@@ -52,8 +52,10 @@ function Register(props) {
                 <h4>{message}</h4>
                 <br/>
                 <input value={username} onChange={handleSetUsername} />
+                <p>Set Username</p>
                 <br/>
                 <input value={password} type="password" onChange={handleSetPassword} />
+                <p>Set Password</p>
                 <br/>
                 <button onClick={handleSubmit}>Register</button>
             </div>

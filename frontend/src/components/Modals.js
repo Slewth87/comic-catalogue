@@ -1,8 +1,7 @@
 // Creates the modal for entering comic details on editing or uploading a file 
 
 import axios from 'axios';
-import { Modal, Button, Form, Col, Row } from "react-bootstrap";
-import { Carousel } from 'react-bootstrap';
+import { Modal, Button, Form, Col, Row, Carousel } from "react-bootstrap";
 import { useState } from 'react'
 import ImageFlipper from './ImageFlipper.js';
 import Check from './Check';
@@ -334,15 +333,15 @@ function Modals(props) {
                   <Row>
                     <Form.Group className="mb-3 col" controlId="formVolume">
                       <Form.Label>Volume</Form.Label>
-                      <Form.Control type="number" defaultValue={comicInfo.volume} onChange={addVolume} />
+                      <Form.Control type="number" min="0" defaultValue={comicInfo.volume} onChange={addVolume} />
                     </Form.Group>
                     <Form.Group className="mb-3 col" controlId="formIssueNo">
                       <Form.Label>Issue</Form.Label>
-                      <Form.Control type="number" defaultValue={comicInfo.number} onChange={addNumber} />
+                      <Form.Control type="number" min="0" defaultValue={comicInfo.number} onChange={addNumber} />
                     </Form.Group>
                     <Form.Group className="mb-3 col" controlId="formCount">
                       <Form.Label>Count (if limited series)</Form.Label>
-                      <Form.Control type="number" defaultValue={comicInfo.count} onChange={addCount} />
+                      <Form.Control type="number" min="0" defaultValue={comicInfo.count} onChange={addCount} />
                     </Form.Group>
                   </Row>
                   <Row>
